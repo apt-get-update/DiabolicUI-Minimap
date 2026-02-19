@@ -19,25 +19,6 @@ local callback, objects, headers = {}, {}, {}
 local elements = {}
 local activeElements = {}
 
--- updating of "invalid" units.
-local function enableTargetUpdate(object)
-	object.onUpdateFrequency = object.onUpdateFrequency or .5
-	object.__eventless = true
-
-	local total = 0
-	object:SetScript('OnUpdate', function(self, elapsed)
-		if(not self.unit) then
-			return
-		elseif(total > self.onUpdateFrequency) then
-			self:UpdateAllElements('OnUpdate')
-			total = 0
-		end
-
-		total = total + elapsed
-	end)
-
-end
-Private.enableTargetUpdate = enableTargetUpdate
 
 local function updateActiveUnit(self, event)
 	-- Calculate units to work with
@@ -696,11 +677,11 @@ do
 		if(visibility) then
 			local type, list = strsplit(' ', visibility, 2)
 			if(list and type == 'custom') then
-				RegisterAttributeDriver(header, 'state-visibility', list)
+				RegisterStateDriver(header, 'state-visibility', list)
 				header.visibility = list
 			else
 				local condition = getCondition({ strsplit(',', visibility) })
-				RegisterAttributeDriver(header, 'state-visibility', condition)
+				RegisterStateDriver(header, 'state-visibility', condition)
 				header.visibility = condition
 			end
 		end

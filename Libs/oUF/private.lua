@@ -1,5 +1,27 @@
 local parent, ns = ...
-local Private = ns.oUF.Private
+local oUF = ns.oUF
+local Private = oUF.Private or {}
+oUF.Private = Private
+
+-- updating of "invalid" units.
+function Private.enableTargetUpdate(object)
+	object.onUpdateFrequency = object.onUpdateFrequency or .5
+	object.__eventless = true
+
+	local total = 0
+	object:SetScript('OnUpdate', function(self, elapsed)
+		if (not self.unit) then
+			return
+		elseif (total > self.onUpdateFrequency) then
+			self:UpdateAllElements('OnUpdate')
+			total = 0
+		end
+
+		total = total + elapsed
+	end)
+end
+
+oUF.Private = Private
 
 function Private.argcheck(value, num, ...)
 	assert(type(num) == 'number', "Bad argument #2 to 'argcheck' (number expected, got " .. type(num) .. ')')
