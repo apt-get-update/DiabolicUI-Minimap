@@ -35,14 +35,9 @@ local function enableTargetUpdate(object)
 
 		total = total + elapsed
 	end)
+
 end
 Private.enableTargetUpdate = enableTargetUpdate
-
-local PetBattleFrameHider = CreateFrame('Frame', (global or parent) .. '_PetBattleFrameHider', UIParent,
-	'SecureHandlerStateTemplate')
-PetBattleFrameHider:SetAllPoints()
-PetBattleFrameHider:SetFrameStrata('LOW')
-RegisterStateDriver(PetBattleFrameHider, 'visibility', '[petbattle] hide; show')
 
 local function updateActiveUnit(self, event)
 	-- Calculate units to work with
@@ -263,9 +258,7 @@ end
 -- boss6-8 exsist in some encounters, but unit event registration seems to be
 -- completely broken for them, so instead we use OnUpdate to update them.
 local eventlessUnits = {
-	boss6 = true,
-	boss7 = true,
-	boss8 = true,
+	-- No eventless boss units in 3.3.5
 }
 
 local function isEventlessUnit(unit)
@@ -637,12 +630,14 @@ do
 
 		template = (template or 'SecureGroupHeaderTemplate')
 
+
 		local isPetHeader = template:match('PetHeader')
 		local name = overrideName or generateName(nil, ...)
-		local header = CreateFrame('Frame', name, PetBattleFrameHider, template)
+		local header = CreateFrame('Frame', name, UIParent, template)
 
+		-- SecureHandlerEnterLeaveTemplate does not exist in 3.3.5
 		header:SetAttribute('template',
-			'SecureUnitButtonTemplate, SecureHandlerStateTemplate, SecureHandlerEnterLeaveTemplate')
+			'SecureUnitButtonTemplate, SecureHandlerStateTemplate')
 		for i = 1, select('#', ...), 2 do
 			local att, val = select(i, ...)
 			if(not att) then break end
@@ -681,11 +676,13 @@ do
 		]])
 		header:SetAttribute('_initialAttribute-_onstate-vehicleui', [[
 			local unit = self:GetAttribute('unit')
-			if(newstate == 'vehicle' and unit and UnitPlayerOrPetInRaid(unit) and not UnitTargetsVehicleInRaidUI(unit)) then
-				self:SetAttribute('toggleForVehicle', false)
-			else
-				self:SetAttribute('toggleForVehicle', true)
-			end
+			       local hasUnitTargetsVehicleInRaidUI = _G.UnitTargetsVehicleInRaidUI ~= nil
+			       local targetsVehicle = hasUnitTargetsVehicleInRaidUI and UnitTargetsVehicleInRaidUI(unit) or true
+			       if(newstate == 'vehicle' and unit and UnitPlayerOrPetInRaid(unit) and not targetsVehicle) then
+				       self:SetAttribute('toggleForVehicle', false)
+			       else
+				       self:SetAttribute('toggleForVehicle', true)
+			       end
 		]])
 		header:SetAttribute('oUF-headerType', isPetHeader and 'pet' or 'group')
 
@@ -697,12 +694,12 @@ do
 		end
 
 		if(visibility) then
-			local type, list = string.split(' ', visibility, 2)
+			local type, list = strsplit(' ', visibility, 2)
 			if(list and type == 'custom') then
 				RegisterAttributeDriver(header, 'state-visibility', list)
 				header.visibility = list
 			else
-				local condition = getCondition(string.split(',', visibility))
+				local condition = getCondition({ strsplit(',', visibility) })
 				RegisterAttributeDriver(header, 'state-visibility', condition)
 				header.visibility = condition
 			end
@@ -731,7 +728,7 @@ function oUF:Spawn(unit, overrideName)
 	unit = unit:lower()
 
 	local name = overrideName or generateName(unit)
-	local object = CreateFrame('Button', name, PetBattleFrameHider, 'SecureUnitButtonTemplate')
+	local object = CreateFrame('Button', name, UIParent, 'SecureUnitButtonTemplate')
 	Private.UpdateUnits(object, unit)
 
 	self:DisableBlizzard(unit)
