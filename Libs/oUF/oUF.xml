@@ -3,13 +3,13 @@
 	<Script file="private.lua"/>
 	<Script file="units.lua"/>
 	<Script file="ouf.lua"/>
+	<Script file="combatevents.lua"/>
 	<Script file="events.lua"/>
 	<Script file="factory.lua"/>
 	<Script file="blizzard.lua"/>
 	<Script file="colors.lua"/>
 	<Script file="finalize.lua"/>
 
-	<Script file="combatevents.lua"/>
 
 	<Script file="elements\additionalpower.lua"/>
 	<Script file="elements\power.lua"/>
