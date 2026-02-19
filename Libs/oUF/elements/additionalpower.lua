@@ -1,7 +1,8 @@
 --[[
 # Element: Additional Power Bar
 
-Handles the visibility and updating of a status bar that displays the player's additional power, such as Mana for druids.
+Handles the visibility and updating of a status bar that displays the player's additional power, such as Mana for
+Balance druids.
 
 ## Widget
 
@@ -17,16 +18,18 @@ A default texture will be applied if the widget is a StatusBar and doesn't have 
 
 ## Options
 
-.smoothGradient                   - 9 color values to be used with the .colorSmooth option (table)
+.frequentUpdates - Indicates whether to use UNIT_POWER_FREQUENT instead UNIT_POWER_UPDATE to update the bar (boolean)
+.displayPairs    - Use to override display pairs. (table)
+.smoothGradient  - 9 color values to be used with the .colorSmooth option (table)
 
 The following options are listed by priority. The first check that returns true decides the color of the bar.
 
-.colorPower        - Use `self.colors.power[token]` to color the bar based on the player's additional power type
-                     (boolean)
-.colorClass        - Use `self.colors.class[class]` to color the bar based on unit class. `class` is defined by the
-                     second return of [UnitClass](http://wowprogramming.com/docs/api/UnitClass.html) (boolean)
-.colorSmooth       - Use `self.colors.smooth` to color the bar with a smooth gradient based on the player's current
-                     additional power percentage (boolean)
+.colorPower  - Use `self.colors.power[token]` to color the bar based on the player's additional power type
+               (boolean)
+.colorClass  - Use `self.colors.class[class]` to color the bar based on unit class. `class` is defined by the
+               second return of [UnitClass](http://wowprogramming.com/docs/api/UnitClass.html) (boolean)
+.colorSmooth - Use `self.colors.smooth` to color the bar with a smooth gradient based on the player's current
+               additional power percentage (boolean)
 
 ## Sub-Widget Options
 
@@ -51,8 +54,6 @@ The following options are listed by priority. The first check that returns true 
     self.AdditionalPower = AdditionalPower
 --]]
 
--- if (select(2, UnitClass('player')) ~= 'DRUID') then return end
-
 local _, ns = ...
 local oUF = ns.oUF
 
@@ -63,8 +64,8 @@ local ADDITIONAL_POWER_BAR_NAME = ADDITIONAL_POWER_BAR_NAME or 'MANA'
 local ADDITIONAL_POWER_BAR_INDEX = ADDITIONAL_POWER_BAR_INDEX or 0
 local ALT_MANA_BAR_PAIR_DISPLAY_INFO = ALT_MANA_BAR_PAIR_DISPLAY_INFO
 
-local function UpdateColor(self, event, unit, powertype)
-	if (not (unit and unit == 'player') and powertype == ADDITIONAL_POWER_BAR_NAME) then return end
+local function UpdateColor(self, event, unit, powerType)
+	if (not (unit and UnitIsUnit(unit, 'player') and powerType == ADDITIONAL_POWER_BAR_NAME)) then return end
 	local element = self.AdditionalPower
 
 	local r, g, b, color
@@ -91,25 +92,21 @@ local function UpdateColor(self, event, unit, powertype)
 		end
 	end
 
+	--[[ Callback: AdditionalPower:PostUpdateColor(r, g, b)
+	Called after the element color has been updated.
+
+	* self - the AdditionalPower element
+	* r    - the red component of the used color (number)[0-1]
+	* g    - the green component of the used color (number)[0-1]
+	* b    - the blue component of the used color (number)[0-1]
+	--]]
 	if (element.PostUpdateColor) then
-		element:PostUpdateColor(unit, r, g, b)
+		element:PostUpdateColor(r, g, b)
 	end
 end
 
-local function ColorPath(self, ...)
-	--[[ Override: AdditionalPower.UpdateColor(self, event, unit, ...)
-	Used to completely override the internal function for updating the widgets' colors.
-
-	* self  - the parent object
-	* event - the event triggering the update (string)
-	* unit  - the unit accompanying the event (string)
-	* ...   - the arguments accompanying the event
-	--]]
-	(self.AdditionalPower.UpdateColor or UpdateColor)(self, ...)
-end
-
-local function Update(self, event, unit, powertype)
-	if (not (unit and UnitIsUnit(unit, 'player') and powertype == ADDITIONAL_POWER_BAR_NAME)) then return end
+local function Update(self, event, unit, powerType)
+	if (not (unit and UnitIsUnit(unit, 'player') and powerType == ADDITIONAL_POWER_BAR_NAME)) then return end
 	local element = self.AdditionalPower
 
 	--[[ Callback: AdditionalPower:PreUpdate(unit)
@@ -122,19 +119,17 @@ local function Update(self, event, unit, powertype)
 		element:PreUpdate(unit)
 	end
 
-	local cur, max = UnitPower(unit, ADDITIONAL_POWER_BAR_INDEX), UnitPowerMax(unit, ADDITIONAL_POWER_BAR_INDEX)
-
+	local cur, max = UnitPower('player', ADDITIONAL_POWER_BAR_INDEX), UnitPowerMax('player', ADDITIONAL_POWER_BAR_INDEX)
 	element:SetMinMaxValues(0, max)
 	element:SetValue(cur)
 
 	element.cur = cur
 	element.max = max
 
-	--[[ Callback: AdditionalPower:PostUpdate(unit, cur, max)
+	--[[ Callback: AdditionalPower:PostUpdate(cur, max)
 	Called after the element has been updated.
 
 	* self - the AdditionalPower element
-	* unit - the unit for which the update has been triggered (string)
 	* cur  - the current value of the player's additional power (number)
 	* max  - the maximum value of the player's additional power (number)
 	--]]
@@ -152,9 +147,17 @@ local function Path(self, ...)
 	* unit  - the unit accompanying the event (string)
 	* ...   - the arguments accompanying the event
 	--]]
-	(self.AdditionalPower.Override or Update)(self, ...)
+	(self.AdditionalPower.Override or Update)(self, ...);
 
-	ColorPath(self, ...)
+	--[[ Override: AdditionalPower.UpdateColor(self, event, unit, ...)
+	Used to completely override the internal function for updating the widgets' colors.
+
+	* self  - the parent object
+	* event - the event triggering the update (string)
+	* unit  - the unit accompanying the event (string)
+	* ...   - the arguments accompanying the event
+	--]]
+	(self.AdditionalPower.UpdateColor or UpdateColor)(self, ...)
 end
 
 local function ElementEnable(self)
@@ -240,7 +243,7 @@ local function ForceUpdate(element)
 	VisibilityPath(element.__owner, 'ForceUpdate', element.__owner.unit)
 end
 
---[[ Power:SetFrequentUpdates(state)
+--[[ Power:SetFrequentUpdates(state, isForced)
 Used to toggle frequent updates.
 
 * self  - the Power element
@@ -270,7 +273,7 @@ local function Enable(self, unit)
 		self:RegisterEvent('UNIT_DISPLAYPOWER', VisibilityPath)
 
 		if (not element.displayPairs) then
-			element.displayPairs = CopyTable(ALT_MANA_BAR_PAIR_DISPLAY_INFO)
+			element.displayPairs = CopyTable(ADDITIONAL_POWER_BAR_INDEX)
 		end
 
 		if (element:IsObjectType('StatusBar') and not element:GetStatusBarTexture()) then
