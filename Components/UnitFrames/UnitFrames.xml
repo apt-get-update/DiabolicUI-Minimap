@@ -1,0 +1,9 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="UnitFrames.lua"/>
+
+	<Script file="Common\Functions.lua"/>
+	<Script file="Common\Tags.lua"/>
+	<Include file="Common\Auras\Auras.xml"/>
+
+	<Script file="Units\Player.lua"/>
+</Ui>

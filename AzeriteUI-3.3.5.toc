@@ -1,0 +1,23 @@
+## Interface: 30300
+## Title: Azerite UI
+## Version: 0.1
+## Author: Nethanos
+## X-Category: Interface Enhancements
+
+# Libraries
+Libs\Libs_Wrath.xml
+
+# Compatibility
+Core\Compatibility.lua
+
+# Addon localization
+Locale\Locale.xml
+
+# Addon core
+Core\Core.xml
+
+# Addon config
+Config\Config.xml
+
+# Addon components
+Components\Components.xml
