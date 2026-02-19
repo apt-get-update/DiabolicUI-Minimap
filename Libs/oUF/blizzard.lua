@@ -9,52 +9,89 @@ local MAX_BOSS_FRAMES = MAX_BOSS_FRAMES or 4
 
 -- sourced from FrameXML/PartyMemberFrame.lua
 local MAX_PARTY_MEMBERS = MAX_PARTY_MEMBERS or 4
+-- sourced from FrameXML/RaidFrame.lua
+local MEMBERS_PER_RAID_GROUP = MEMBERS_PER_RAID_GROUP or 5
+
+local hookedFrames = {}
+local isArenaHooked = false
+local isBossHooked = false
+local isPartyHooked = false
 
 local hiddenParent = CreateFrame('Frame', nil, UIParent)
 hiddenParent:SetAllPoints()
 hiddenParent:Hide()
 
-local function handleFrame(baseName)
+local function insecureOnShow(self)
+	self:Hide()
+end
+
+local function resetParent(self, parent)
+	if (parent ~= hiddenParent) then
+		self:SetParent(hiddenParent)
+	end
+end
+
+local function handleFrame(baseName, doNotReparent)
 	local frame
-	if(type(baseName) == 'string') then
+	if (type(baseName) == 'string') then
 		frame = _G[baseName]
 	else
 		frame = baseName
 	end
 
-	if(frame) then
+	if (frame) then
 		frame:UnregisterAllEvents()
 		frame:Hide()
 
-		-- Keep frame hidden without causing taint
-		frame:SetParent(hiddenParent)
+		if (not doNotReparent) then
+			frame:SetParent(hiddenParent)
 
-		local health = frame.healthBar or frame.healthbar
-		if(health) then
+			if (not hookedFrames[frame]) then
+				hooksecurefunc(frame, 'SetParent', resetParent)
+
+				hookedFrames[frame] = true
+			end
+		end
+
+		local health = frame.healthBar or frame.healthbar or frame.HealthBar
+		if (health) then
 			health:UnregisterAllEvents()
 		end
 
-		local power = frame.manabar
-		if(power) then
+		local power = frame.manabar or frame.ManaBar
+		if (power) then
 			power:UnregisterAllEvents()
 		end
 
 		local spell = frame.castBar or frame.spellbar
-		if(spell) then
+		if (spell) then
 			spell:UnregisterAllEvents()
 		end
 
+		local altpowerbar = frame.powerBarAlt or frame.PowerBarAlt
+		if (altpowerbar) then
+			altpowerbar:UnregisterAllEvents()
+		end
 		local buffFrame = frame.BuffFrame
-		if(buffFrame) then
+		if (buffFrame) then
 			buffFrame:UnregisterAllEvents()
+		end
+		local petFrame = frame.petFrame or frame.PetFrame
+		if (petFrame) then
+			petFrame:UnregisterAllEvents()
+		end
+
+		local totFrame = frame.totFrame
+		if (totFrame) then
+			totFrame:UnregisterAllEvents()
 		end
 	end
 end
 
 function oUF:DisableBlizzard(unit)
-	if(not unit) then return end
+	if (not unit) then return end
 
-	if(unit == 'player') then
+	if (unit == 'player') then
 		handleFrame(PlayerFrame)
 
 		-- For the damn vehicle support:
@@ -67,41 +104,41 @@ function oUF:DisableBlizzard(unit)
 		-- User placed frames don't animate
 		PlayerFrame:SetUserPlaced(true)
 		PlayerFrame:SetDontSavePosition(true)
-	elseif(unit == 'pet') then
+	elseif (unit == 'pet') then
 		handleFrame(PetFrame)
-	elseif(unit == 'target') then
+	elseif (unit == 'target') then
 		handleFrame(TargetFrame)
 		handleFrame(ComboFrame)
-	elseif(unit == 'focus') then
+	elseif (unit == 'focus') then
 		handleFrame(FocusFrame)
 		handleFrame(TargetofFocusFrame)
-	elseif(unit == 'targettarget') then
+	elseif (unit == 'targettarget') then
 		handleFrame(TargetFrameToT)
-	elseif(unit:match('boss%d?$')) then
+	elseif (unit:match('boss%d?$')) then
 		local id = unit:match('boss(%d)')
-		if(id) then
+		if (id) then
 			handleFrame('Boss' .. id .. 'TargetFrame')
 		else
 			for i = 1, MAX_BOSS_FRAMES do
-				handleFrame(string.format('Boss%dTargetFrame', i))
+				handleFrame('Boss' .. i .. 'TargetFrame')
 			end
 		end
-	elseif(unit:match('party%d?$')) then
+	elseif (unit:match('party%d?$')) then
 		local id = unit:match('party(%d)')
-		if(id) then
+		if (id) then
 			handleFrame('PartyMemberFrame' .. id)
 		else
 			for i = 1, MAX_PARTY_MEMBERS do
 				handleFrame(string.format('PartyMemberFrame%d', i))
 			end
 		end
-	elseif(unit:match('arena%d?$')) then
+	elseif (unit:match('arena%d?$')) then
 		local id = unit:match('arena(%d)')
-		if(id) then
+		if (id) then
 			handleFrame('ArenaEnemyFrame' .. id)
 		else
 			for i = 1, MAX_ARENA_ENEMIES do
-				handleFrame(string.format('ArenaEnemyFrame%d', i))
+				handleFrame('ArenaEnemyFrame' .. i)
 			end
 		end
 
