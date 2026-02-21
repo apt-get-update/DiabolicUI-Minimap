@@ -83,10 +83,14 @@ local defaults = {
 			enableParty = true,
 			enableRaid = true
 		},
-
-	}
+	},
 }
 
+local moduleDefaults = {
+	enabled = true,
+}
+
+ns.moduleDefaults = moduleDefaults
 -- Lua API
 local ipairs = ipairs
 local math_max = math.max

@@ -85,14 +85,10 @@ local fire_mt = {
 -- events[event](...)
 local events_mt = {
 	__call = function(modules, event, ...)
-		for module,funcs in next,modules do
-			 -- funcs can be a function, a method name, or a table of those.
+		for module, funcs in next, modules do
 			if (type(funcs) == "string") then
 				module[funcs](module, event, ...)
 			else
-				-- This applies to both functions and tables.
-				-- our tables mimicks functions,
-				-- using the fire_mt meta above.
 				funcs(module, event, ...)
 			end
 		end
