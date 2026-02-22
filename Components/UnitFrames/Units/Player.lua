@@ -491,7 +491,7 @@ UnitStyles["Player"] = function(self, unit, id)
 
     -- Auras
     --------------------------------------------
-    local auras = CreateFrame("Frame", nil, self)
+    local auras = CreateFrame("Frame", "PlayerAuras", self)
     auras:SetSize(unpack(db.AurasSize))
     auras:SetPoint(unpack(db.AurasPosition))
     auras.size = db.AuraSize
@@ -501,6 +501,8 @@ UnitStyles["Player"] = function(self, unit, id)
     auras.disableCooldown = db.AurasDisableCooldown
     auras.onlyShowPlayer = db.AurasOnlyShowPlayer
     auras.showStealableBuffs = db.AurasShowStealableBuffs
+    auras.showBuffType = false
+    auras.showDebuffType = true
     auras.initialAnchor = db.AurasInitialAnchor
     auras["spacing-x"] = db.AurasSpacingX
     auras["spacing-y"] = db.AurasSpacingY
@@ -515,7 +517,6 @@ UnitStyles["Player"] = function(self, unit, id)
     auras.CustomFilter = ns.AuraFilters.PlayerAuraFilter
     auras.PreSetPosition = ns.AuraSorts.Default    -- only in classic
     auras.SortAuras = ns.AuraSorts.DefaultFunction -- only in retail
-    auras.showDebuffType = true
 
     self.Auras = auras
 

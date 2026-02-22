@@ -18,6 +18,8 @@ At least one of the above widgets must be present for the element to work.
 .disableMouse       - Disables mouse events (boolean)
 .disableCooldown    - Disables the cooldown spiral (boolean)
 .size               - Aura icon size. Defaults to 16 (number)
+.width              - Aura icon width. Takes priority over `size` (number)
+.height             - Aura icon height. Takes priority over `size` (number)
 .onlyShowPlayer     - Shows only auras created by player/vehicle (boolean)
 .showStealableBuffs - Displays the stealable texture on buffs that can be stolen (boolean)
 .spacing            - Spacing between each icon. Defaults to 0 (number)
@@ -74,13 +76,9 @@ local VISIBLE = 1
 local HIDDEN = 0
 
 local pcall = pcall
-local tinsert = tinsert
 local CreateFrame = CreateFrame
-local GetSpellInfo = GetSpellInfo
 local UnitAura = UnitAura
 local UnitIsUnit = UnitIsUnit
-local floor, min = math.floor, math.min
--- GLOBALS: GameTooltip
 
 local function UpdateTooltip(self)
 	GameTooltip:SetUnitAura(self:GetParent().__owner.unit, self:GetID(), self.filter)
@@ -89,7 +87,10 @@ end
 local function onEnter(self)
 	if (not self:IsVisible()) then return end
 
-	GameTooltip:SetOwner(self, self:GetParent().tooltipAnchor)
+	-- Avoid parenting GameTooltip to frames with anchoring restrictions,
+	-- otherwise it'll inherit said restrictions which will cause issues with
+	-- its further positioning, clamping, etc
+	GameTooltip:SetOwner(self, self:GetParent().__restricted and 'ANCHOR_CURSOR' or self:GetParent().tooltipAnchor)
 	self:UpdateTooltip()
 end
 
@@ -98,17 +99,16 @@ local function onLeave()
 end
 
 local function createAuraIcon(element, index)
-	local button = CreateFrame('Button', '$parentButton' .. index, element)
-	button:RegisterForClicks('RightButtonUp')
+	--print all accessible properties of the element table
+	local button = CreateFrame('Button', element:GetName() .. 'Button' .. index, element)
 
 	local cd = CreateFrame('Cooldown', '$parentCooldown', button, 'CooldownFrameTemplate')
-	cd:SetFrameLevel(button:GetFrameLevel() + 1)
 	cd:SetAllPoints()
 
 	local icon = button:CreateTexture(nil, 'BORDER')
 	icon:SetAllPoints()
 
-	local countFrame = CreateFrame('Frame', '$parentCount', button)
+	local countFrame = CreateFrame('Frame', nil, button)
 	countFrame:SetAllPoints(button)
 	countFrame:SetFrameLevel(cd:GetFrameLevel() + 1)
 
@@ -119,30 +119,30 @@ local function createAuraIcon(element, index)
 	overlay:SetTexture([[Interface\Buttons\UI-Debuff-Overlays]])
 	overlay:SetAllPoints()
 	overlay:SetTexCoord(.296875, .5703125, 0, .515625)
-	button.overlay = overlay
+	button.Overlay = overlay
 
 	local stealable = button:CreateTexture(nil, 'OVERLAY')
 	stealable:SetTexture([[Interface\TargetingFrame\UI-TargetingFrame-Stealable]])
 	stealable:SetPoint('TOPLEFT', -3, 3)
 	stealable:SetPoint('BOTTOMRIGHT', 3, -3)
 	stealable:SetBlendMode('ADD')
-	button.stealable = stealable
+	button.Stealable = stealable
 
 	button.UpdateTooltip = UpdateTooltip
 	button:SetScript('OnEnter', onEnter)
 	button:SetScript('OnLeave', onLeave)
 
-	button.icon = icon
-	button.count = count
-	button.cd = cd
+	button.Icon = icon
+	button.Count = count
+	button.Cooldown = cd
 
-	--[[ Callback: Auras:PostCreateIcon(button)
+	--[[ Callback: Auras:PostCreateButton(button)
 	Called after a new aura button has been created.
 
 	* self   - the widget holding the aura buttons
 	* button - the newly created aura button (Button)
 	--]]
-	if (element.PostCreateIcon) then element:PostCreateIcon(button) end
+	if (element.PostCreateButton) then element:PostCreateButton(button) end
 
 	return button
 end
@@ -156,7 +156,6 @@ end
 local function updateIcon(element, unit, index, offset, filter, isDebuff, visible)
 	local name, rank, texture, count, debuffType, duration, expiration, caster, isStealable, shouldConsolidate, spellID =
 		UnitAura(unit, index, filter)
-
 	-- count may be nil sometimes
 	count = count or 0
 
@@ -164,8 +163,9 @@ local function updateIcon(element, unit, index, offset, filter, isDebuff, visibl
 		local position = visible + offset + 1
 		local button = element[position]
 		if (not button) then
-			button = (element.CreateIcon or createAuraIcon)(element, position)
-			tinsert(element, button)
+			button = (element.CreateButton or createAuraIcon)(element, position)
+
+			table.insert(element, button)
 			element.createdIcons = element.createdIcons + 1
 		end
 
@@ -178,46 +178,63 @@ local function updateIcon(element, unit, index, offset, filter, isDebuff, visibl
 			duration, expiration, caster, isStealable, shouldConsolidate, spellID)
 
 		if (show) then
-			if (button.cd and not element.disableCooldown) then
+			-- We might want to consider delaying the creation of an actual cooldown
+			-- object to this point, but I think that will just make things needlessly
+			-- complicated.
+			if (button.Cooldown and not element.disableCooldown) then
 				if (duration and duration > 0) then
-					button.cd:SetCooldown(expiration - duration, duration)
-					button.cd:Show()
+					button.Cooldown:SetCooldown(expiration - duration, duration)
+					button.Cooldown:Show()
 				else
-					button.cd:Hide()
+					button.Cooldown:Hide()
 				end
 			end
 
-			if (button.overlay) then
+			if (button.Overlay) then
 				if ((isDebuff and element.showDebuffType) or (not isDebuff and element.showBuffType) or element.showType) then
 					local color = element.__owner.colors.debuff[debuffType] or element.__owner.colors.debuff.none
 
-					button.overlay:SetVertexColor(color[1], color[2], color[3])
-					button.overlay:Show()
+					button.Overlay:SetVertexColor(color[1], color[2], color[3])
+					button.Overlay:Show()
 				else
-					button.overlay:Hide()
+					button.Overlay:Hide()
 				end
 			end
 
-			if (button.stealable) then
+			if (button.Stealable) then
 				if (not isDebuff and isStealable and element.showStealableBuffs and not UnitIsUnit('player', unit)) then
-					button.stealable:Show()
+					button.Stealable:Show()
 				else
-					button.stealable:Hide()
+					button.Stealable:Hide()
 				end
 			end
 
-			if (button.icon) then button.icon:SetTexture(texture) end
-			if (button.count) then button.count:SetText(count > 1 and count) end
+			if (button.Icon) then button.Icon:SetTexture(texture) end
+			if (button.Count) then button.Count:SetText(count > 1 and count or nil) end
 
-			local size = element.size or 16
-			button:SetSize(size, size)
+			local width = element.width or element.size or 16
+			local height = element.height or element.size or 16
+			button:SetSize(width, height)
 
 			button:EnableMouse(not element.disableMouse)
 			button:SetID(index)
 			button:Show()
 
-			if (element.PostUpdateIcon) then
-				element:PostUpdateIcon(unit, button, index, position, duration, expiration, debuffType, isStealable)
+			--[[ Callback: Auras:PostUpdateButton(unit, button, index, position)
+			Called after the aura button has been updated.
+
+			* self        - the widget holding the aura buttons
+			* unit        - the unit on which the aura is cast (string)
+			* button      - the updated aura button (Button)
+			* index       - the index of the aura (number)
+			* position    - the actual position of the aura button (number)
+			* duration    - the aura duration in seconds (number?)
+			* expiration  - the point in time when the aura will expire. Comparable to GetTime() (number)
+			* debuffType  - the debuff type of the aura (string?)['Curse', 'Disease', 'Magic', 'Poison']
+			* isStealable - whether the aura can be stolen or purged (boolean)
+			--]]
+			if (element.PostUpdateButton) then
+				element:PostUpdateButton(unit, button, index, position, duration, expiration, debuffType, isStealable)
 			end
 
 			return VISIBLE
@@ -228,12 +245,14 @@ local function updateIcon(element, unit, index, offset, filter, isDebuff, visibl
 end
 
 local function SetPosition(element, from, to)
-	local sizex = (element.size or 16) + (element['spacing-x'] or element.spacing or 0)
-	local sizey = (element.size or 16) + (element['spacing-y'] or element.spacing or 0)
+	local width = element.width or element.size or 16
+	local height = element.height or element.size or 16
+	local sizex = width + (element['spacing-x'] or element.spacing or 0)
+	local sizey = height + (element['spacing-y'] or element.spacing or 0)
 	local anchor = element.initialAnchor or 'BOTTOMLEFT'
 	local growthx = (element['growth-x'] == 'LEFT' and -1) or 1
 	local growthy = (element['growth-y'] == 'DOWN' and -1) or 1
-	local cols = floor(element:GetWidth() / sizex + 0.5)
+	local cols = math.floor(element:GetWidth() / sizex + 0.5)
 
 	for i = from, to do
 		local button = element[i]
@@ -241,7 +260,7 @@ local function SetPosition(element, from, to)
 		-- Bail out if the to range is out of scope.
 		if (not button) then break end
 		local col = (i - 1) % cols
-		local row = floor((i - 1) / cols)
+		local row = math.floor((i - 1) / cols)
 
 		button:ClearAllPoints()
 		button:SetPoint(anchor, element, anchor, col * sizex * growthx, row * sizey * growthy)
@@ -292,8 +311,8 @@ local function UpdateAuras(self, event, unit)
 		local numDebuffs = auras.numDebuffs or 40
 		local max = auras.numTotal or numBuffs + numDebuffs
 
-		local visibleBuffs = filterIcons(auras, unit, auras.buffFilter or auras.filter or 'HELPFUL', min(numBuffs, max),
-			nil, 0, true)
+		local visibleBuffs = filterIcons(auras, unit, auras.buffFilter or auras.filter or 'HELPFUL',
+			math.min(numBuffs, max), nil, 0, true)
 
 		local hasGap
 		if (visibleBuffs ~= 0 and auras.gap) then
@@ -302,17 +321,17 @@ local function UpdateAuras(self, event, unit)
 
 			local button = auras[visibleBuffs]
 			if (not button) then
-				button = (auras.CreateIcon or createAuraIcon)(auras, visibleBuffs)
-				tinsert(auras, button)
+				button = (auras.CreateButton or createAuraIcon)(auras, visibleBuffs)
+				table.insert(auras, button)
 				auras.createdIcons = auras.createdIcons + 1
 			end
 
 			-- Prevent the button from displaying anything.
-			if (button.cd) then button.cd:Hide() end
-			if (button.icon) then button.icon:SetTexture() end
-			if (button.overlay) then button.overlay:Hide() end
-			if (button.stealable) then button.stealable:Hide() end
-			if (button.count) then button.count:SetText() end
+			if (button.Cooldown) then button.Cooldown:Hide() end
+			if (button.Icon) then button.Icon:SetTexture() end
+			if (button.Overlay) then button.Overlay:Hide() end
+			if (button.Stealable) then button.Stealable:Hide() end
+			if (button.Count) then button.Count:SetText() end
 
 			button:EnableMouse(false)
 			button:Show()
@@ -331,7 +350,7 @@ local function UpdateAuras(self, event, unit)
 		end
 
 		local visibleDebuffs = filterIcons(auras, unit, auras.debuffFilter or auras.filter or 'HARMFUL',
-			min(numDebuffs, max - visibleBuffs), true, visibleBuffs)
+			math.min(numDebuffs, max - visibleBuffs), true, visibleBuffs)
 		auras.visibleDebuffs = visibleDebuffs
 
 		if (hasGap and visibleDebuffs == 0) then
@@ -462,19 +481,13 @@ local function Enable(self)
 		local buffs = self.Buffs
 		if (buffs) then
 			buffs.__owner = self
+			-- check if there's any anchoring restrictions
+			buffs.__restricted = not pcall(self.GetCenter, self)
 			buffs.ForceUpdate = ForceUpdate
 
 			buffs.createdIcons = buffs.createdIcons or 0
 			buffs.anchoredIcons = 0
-
-			-- Avoid parenting GameTooltip to frames with anchoring restrictions,
-			-- otherwise it'll inherit said restrictions which will cause issues
-			-- with its further positioning, clamping, etc
-			if (not pcall(self.GetCenter, self)) then
-				buffs.tooltipAnchor = 'ANCHOR_CURSOR'
-			else
-				buffs.tooltipAnchor = buffs.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
-			end
+			buffs.tooltipAnchor = buffs.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
 
 			buffs:Show()
 		end
@@ -482,19 +495,13 @@ local function Enable(self)
 		local debuffs = self.Debuffs
 		if (debuffs) then
 			debuffs.__owner = self
+			-- check if there's any anchoring restrictions
+			debuffs.__restricted = not pcall(self.GetCenter, self)
 			debuffs.ForceUpdate = ForceUpdate
 
 			debuffs.createdIcons = debuffs.createdIcons or 0
 			debuffs.anchoredIcons = 0
-
-			-- Avoid parenting GameTooltip to frames with anchoring restrictions,
-			-- otherwise it'll inherit said restrictions which will cause issues
-			-- with its further positioning, clamping, etc
-			if (not pcall(self.GetCenter, self)) then
-				debuffs.tooltipAnchor = 'ANCHOR_CURSOR'
-			else
-				debuffs.tooltipAnchor = debuffs.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
-			end
+			debuffs.tooltipAnchor = debuffs.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
 
 			debuffs:Show()
 		end
@@ -502,19 +509,13 @@ local function Enable(self)
 		local auras = self.Auras
 		if (auras) then
 			auras.__owner = self
+			-- check if there's any anchoring restrictions
+			auras.__restricted = not pcall(self.GetCenter, self)
 			auras.ForceUpdate = ForceUpdate
 
 			auras.createdIcons = auras.createdIcons or 0
 			auras.anchoredIcons = 0
-
-			-- Avoid parenting GameTooltip to frames with anchoring restrictions,
-			-- otherwise it'll inherit said restrictions which will cause issues
-			-- with its further positioning, clamping, etc
-			if (not pcall(self.GetCenter, self)) then
-				auras.tooltipAnchor = 'ANCHOR_CURSOR'
-			else
-				auras.tooltipAnchor = auras.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
-			end
+			auras.tooltipAnchor = auras.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
 
 			auras:Show()
 		end
