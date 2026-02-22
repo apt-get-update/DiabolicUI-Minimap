@@ -102,6 +102,7 @@ ns.AuraStyles.CreateButton = function(element, position)
 		aura.UpdateTooltip = UpdateTooltip
 		aura:SetScript("OnEnter", OnEnter)
 		aura:SetScript("OnLeave", OnLeave)
+		aura:SetScript("OnClick", OnClick)
 	end
 
 	return aura
@@ -139,7 +140,6 @@ end
 --------------------------------------------------
 ns.AuraStyles.PlayerPostUpdateButton = function(element, unit, button, index, position, duration, expiration, debuffType,
 												isStealable)
-	print("PlayerPostUpdateButton", element, unit, button, index, position, duration, expiration, debuffType, isStealable)
 	-- Border Coloring
 	local color
 	if (button.isDebuff and element.showDebuffType) or (not button.isDebuff and element.showBuffType) or (element.showType) then
