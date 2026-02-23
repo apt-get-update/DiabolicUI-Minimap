@@ -61,7 +61,7 @@ ns.Private.WoW10 = false
 
 -- Prefix for frame names
 ------------------------------------------------------
-ns.Private.Prefix = string.gsub(Addon, "UI(%d*)", "")
+ns.Private.Prefix = string.match(Addon, "^(.*)UI") or Addon
 
 -- Player constants
 ------------------------------------------------------
