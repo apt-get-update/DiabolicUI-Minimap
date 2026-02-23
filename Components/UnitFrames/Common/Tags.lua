@@ -23,7 +23,7 @@
 	SOFTWARE.
 
 --]]
-local Addon, ns = ...
+local _, ns = ...
 local oUF = ns.oUF
 local Events = oUF.Tags.Events
 local Methods = oUF.Tags.Methods
@@ -38,38 +38,23 @@ local string_len = string.len
 local tonumber = tonumber
 local unpack = unpack
 
--- WoW API
-local UnitBattlePetLevel = UnitBattlePetLevel
-local UnitClassification = UnitClassification
-local UnitGetIncomingHeals = UnitGetIncomingHeals
-local UnitGetTotalAbsorbs = UnitGetTotalAbsorbs
-local UnitHealth = UnitHealth
-local UnitHealthMax = UnitHealthMax
-local UnitIsAFK = UnitIsAFK
-local UnitIsBattlePetCompanion = UnitIsBattlePetCompanion
-local UnitIsDeadOrGhost = UnitIsDeadOrGhost
-local UnitIsWildBattlePet = UnitIsWildBattlePet
-local UnitEffectiveLevel = UnitEffectiveLevel or UnitLevel
-local UnitName = UnitName
-local UnitPower = UnitPower
-local UnitPowerMax = UnitPowerMax
-
 -- Power type constant (Enum.PowerType.Mana doesn't exist in 3.3.5)
-local POWER_TYPE_MANA = (Enum and Enum.PowerType and Enum.PowerType.Mana) or SPELL_POWER_MANA or 0
+local POWER_TYPE_MANA = 0
 
 -- Addon API
 local Colors = ns.Colors
 local AbbreviateName = ns.API.AbbreviateName
 local AbbreviateNumber = ns.API.AbbreviateNumber
-local AbbreviateNumberBalanced = ns.API.AbbreviateNumberBalanced
 local GetDifficultyColorByLevel = ns.API.GetDifficultyColorByLevel
 
 -- Colors
 local c_gray = Colors.gray.colorCode
 local c_normal = Colors.normal.colorCode
-local c_highlight = Colors.highlight.colorCode
 local c_rare = Colors.quality.Rare.colorCode
 local c_red = Colors.red.colorCode
+local c_paleblue = Colors.paleblue.colorCode
+local c_brightblue = Colors.brightblue.colorCode
+local c_brightred = Colors.brightred.colorCode
 local r = "|r"
 
 -- Strings
@@ -89,17 +74,18 @@ local prefix = function(msg)
 end
 
 local getargs = function(...)
-	local args = { ... }
-	for i, arg in ipairs(args) do
+	local args = {}
+	for i = 1, select("#", ...) do
+		local arg = select(i, ...)
 		local num = tonumber(arg)
 		if (num) then
 			args[i] = num
 		elseif (arg == "true" or arg == true) then
 			args[i] = true
-		elseif (arg == "false") then
+		elseif (arg == "nil" or arg == "false" or not arg) then
 			args[i] = false
-		elseif (arg == "nil") then
-			args[i] = false
+		else
+			args[i] = arg
 		end
 	end
 	return unpack(args)
@@ -153,7 +139,7 @@ end
 Events[prefix("*:Classification")] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
 if (oUF.isClassic or oUF.isTBC or oUF.isWrath) then
 	Methods[prefix("*:Classification")] = function(unit)
-		local l = UnitEffectiveLevel(unit)
+		local l = UnitLevel(unit)
 		local c = UnitClassification(unit)
 		if (c == "worldboss" or (not l) or (l < 1)) then
 			return
@@ -165,10 +151,7 @@ if (oUF.isClassic or oUF.isTBC or oUF.isWrath) then
 	end
 else
 	Methods[prefix("*:Classification")] = function(unit)
-		local l = UnitEffectiveLevel(unit)
-		if (UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit)) then
-			l = UnitBattlePetLevel(unit)
-		end
+		local l = UnitLevel(unit)
 		local c = UnitClassification(unit)
 		if (c == "worldboss" or (not l) or (l < 1)) then
 			return
@@ -180,7 +163,7 @@ else
 	end
 end
 
-Events[prefix("*:Health")] = "UNIT_HEALTH UNIT_MAXHEALTH PLAYER_FLAGS_CHANGED UNIT_CONNECTION"
+Events[prefix("*:Health")] = "UNIT_HEALTH UNIT_MAXHEALTH PLAYER_FLAGS_CHANGED UNIT_CONNECTION RAID_ROSTER_UPDATE"
 Methods[prefix("*:Health")] = function(unit, realUnit, ...)
 	local useSmart, useFull, hideStatus, showAFK = getargs(...)
 	if (UnitIsDeadOrGhost(unit)) then
@@ -240,15 +223,18 @@ Methods[prefix("*:ManaText:Low")] = function(unit)
 		local mana, maxMana = UnitPower(unit, POWER_TYPE_MANA), UnitPowerMax(unit, POWER_TYPE_MANA)
 		if (maxMana > 0) then
 			local perc = mana / maxMana
-			if (perc < .25) then
-				value = perc * 100 + .5
-				return value - value % 1
+			if (perc < .35) then
+				local value = perc * 100 + .5
+				return c_brightred .. (value - value % 1) .. r
+			elseif (perc < .85) then
+				local value = perc * 100 + .5
+				return c_brightblue .. (value - value % 1) .. r
 			end
 		end
 	end
 end
 
-Events[prefix("*:Name")] = "UNIT_NAME_UPDATE"
+Events[prefix("*:Name")] = "UNIT_NAME_UPDATE UNIT_LEVEL PLAYER_LEVEL_UP RAID_ROSTER_UPDATE"
 Methods[prefix("*:Name")] = function(unit, realUnit, ...)
 	local name = UnitName(realUnit or unit)
 	if (not name) then
@@ -256,14 +242,13 @@ Methods[prefix("*:Name")] = function(unit, realUnit, ...)
 	end
 
 	local maxChars, showLevel, showLevelLast, showFull = getargs(...)
-	local levelTextLength, levelText, shouldShowLevel = 0
+	local levelTextLength, levelText, shouldShowLevel = 0, nil, nil
+	local fullName, fullLength = name, string_len(name) + (shouldShowLevel and levelTextLength or 0)
+	local abbreviatedLength
 
-	if (not showFull and string_find(name, "%s")) then
-		name = AbbreviateName(name)
-	end
-
+	-- Create level text if requested.
 	if (showLevel) then
-		local level = UnitEffectiveLevel(realUnit or unit)
+		local level = UnitLevel(realUnit or unit)
 		if (level and level > 0) then
 			local _, _, _, colorCode = GetDifficultyColorByLevel(level)
 			levelText = colorCode .. level .. "|r"
@@ -272,11 +257,15 @@ Methods[prefix("*:Name")] = function(unit, realUnit, ...)
 		end
 	end
 
-	if (maxChars) then
-		local fullLength = string_len(name) + (shouldShowLevel and levelTextLength or 0)
-		if (fullLength > maxChars) then
-			name = utf8sub(name, showLevel and maxChars - levelTextLength or maxChars)
-		end
+	-- Abbreviate when needed, but not when we have space.
+	if (not showFull) and (not maxChars or fullLength > maxChars) then
+		name = AbbreviateName(name)
+		abbreviatedLength = string_len(name) + (shouldShowLevel and levelTextLength or 0)
+	end
+
+	-- Truncate when needed. Messy.
+	if (maxChars) and (showFull and fullLength > maxChars) or (abbreviatedLength and abbreviatedLength > maxChars) then
+		name = utf8sub(name, showLevel and (maxChars - levelTextLength) or maxChars)
 	end
 
 	if (shouldShowLevel) then
@@ -342,7 +331,7 @@ end
 Events[prefix("*:Level")] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
 if (oUF.isClassic or oUF.isTBC or oUF.isWrath) then
 	Methods[prefix("*:Level")] = function(unit, asPrefix)
-		local l = UnitEffectiveLevel(unit)
+		local l = UnitLevel(unit)
 		local c = UnitClassification(unit)
 		if (c == "worldboss" or (not l) or (l < 1)) then
 			return T_BOSS
@@ -359,10 +348,7 @@ if (oUF.isClassic or oUF.isTBC or oUF.isWrath) then
 	end
 else
 	Methods[prefix("*:Level")] = function(unit, asPrefix)
-		local l = UnitEffectiveLevel(unit)
-		if (UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit)) then
-			l = UnitBattlePetLevel(unit)
-		end
+		local l = UnitLevel(unit)
 		local c = UnitClassification(unit)
 		if (c == "worldboss" or (not l) or (l < 1)) then
 			return T_BOSS

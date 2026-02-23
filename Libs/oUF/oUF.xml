@@ -25,7 +25,6 @@
 	<Script file="elements\range.lua"/>
 	<Script file="elements\castbar.lua"/>
 	<Script file="elements\threatindicator.lua"/>
-	<Script file="elements\tags.lua"/>
 	<Script file="elements\masterlooterindicator.lua"/>
 	<Script file="elements\assistantindicator.lua"/>
 	<Script file="elements\runes.lua"/>
@@ -34,6 +33,8 @@
 	<Script file="elements\combopoints.lua"/>
 	<Script file="elements\raidroleindicator.lua"/>
 	<Script file="elements\happinessindicator.lua"/>
+	<Script file="elements\tags.lua"/>
+	
 
 	<!-- Clique support -->
 	<Button name="oUF_ClickCastUnitTemplate" virtual="true" inherits="SecureUnitButtonTemplate, SecureHandlerEnterLeaveTemplate">
