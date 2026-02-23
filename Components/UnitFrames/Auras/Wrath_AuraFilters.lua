@@ -43,7 +43,7 @@ ns.AuraFilters.PlayerAuraFilter = function(element, unit, button, name, rank, te
 	button.expiration = expiration
 	button.duration = duration
 	button.noDuration = (not duration or duration == 0)
-	button.isPlayer = caster == "player" or caster == "vehicle"
+	button.isPlayer = caster == nil or caster == "player" or caster == "vehicle"
 	button.spellID = spellID
 
 	-- Hide blacklisted auras.
@@ -73,7 +73,7 @@ ns.AuraFilters.TargetAuraFilter = function(element, unit, button, name, rank, te
 	button.expiration = expiration
 	button.duration = duration
 	button.noDuration = (not duration or duration == 0)
-	button.isPlayer = caster == "player" or caster == "vehicle"
+	button.isPlayer = caster == nil or caster == "target" or caster == "vehicle"
 	button.spellID = spellID
 
 	-- Hide blacklisted auras.
@@ -86,10 +86,10 @@ ns.AuraFilters.TargetAuraFilter = function(element, unit, button, name, rank, te
 		return true
 	end
 
-	if (UnitAffectingCombat("player")) then
+	if (UnitAffectingCombat("target")) then
 		return (not button.noDuration and duration < 301) or (count and count > 1)
 	else
-		if (UnitCanAttack("player", unit)) then
+		if (UnitCanAttack("target", unit)) then
 			return (not button.noDuration and button.duration < 301) or (count and count > 1)
 		elseif (UnitPlayerControlled(unit)) then
 			return (not button.noDuration) or (count and count > 1)
