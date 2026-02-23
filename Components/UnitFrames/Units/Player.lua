@@ -46,10 +46,7 @@ local UnitPowerType = UnitPowerType
 
 -- Addon API
 local Colors = ns.Colors
-local Config = ns.Config
-local GetFont = ns.API.GetFont
-local GetMedia = ns.API.GetMedia
-local IsAddOnEnabled = ns.API.IsAddOnEnabled
+
 
 -- Constants
 local IsLoveFestival = ns.API.IsLoveFestival()
@@ -218,6 +215,7 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
         end
     end
 end
+
 -- Only show mana orb when mana is the primary resource.
 local Mana_UpdateVisibility = function(self, event, unit)
     local element = self.AdditionalPower

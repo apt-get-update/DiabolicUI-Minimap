@@ -9,4 +9,5 @@
 	<Script file="Auras\Wrath_AuraStyling.lua"/>
 
 	<Script file="Units\Player.lua"/>
+	<Script file="Units\Target.lua"/>
 </Ui>

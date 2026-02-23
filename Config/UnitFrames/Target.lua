@@ -244,10 +244,17 @@ Config.Target = {
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
+		-- Health Bar Threat
+		HealthThreatSize = { 105, 104 },
+		HealthThreatPosition = { "TOPRIGHT", -104, -28.5 },
 		HealthThreatTexture = GetMedia("hp_critter_case_glow"),
 
 		PortraitBorderTexture = GetMedia("portrait_frame_lo"),
 		PortraitBorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+		-- Portrait Threat
+		PortraitThreatSize = { 187, 187 },
+		PortraitThreatPosition = { "CENTER", -1, 3 },
+		PortraitThreatTexture = GetMedia("portrait_frame_glow"),
 	},
 	Novice = {
 
@@ -263,12 +270,17 @@ Config.Target = {
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
+		-- Health Bar Threat
+		HealthThreatSize = { 716, 188 },
+		HealthThreatPosition = { "TOPRIGHT", 24.5, 8.5 },
 		HealthThreatTexture = GetMedia("hp_low_case_glow"),
-
 		-- Portrait
 		PortraitBorderTexture = GetMedia("portrait_frame_lo"),
 		PortraitBorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
-
+		-- Portrait Threat
+		PortraitThreatSize = { 187, 187 },
+		PortraitThreatPosition = { "CENTER", -1, 3 },
+		PortraitThreatTexture = GetMedia("portrait_frame_glow"),
 	},
 	Hardened = {
 
@@ -284,12 +296,17 @@ Config.Target = {
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
+		-- Health Bar Threat
+		HealthThreatSize = { 716, 188 },
+		HealthThreatPosition = { "TOPRIGHT", 24.5, 7.5 },
 		HealthThreatTexture = GetMedia("hp_mid_case_glow"),
-
 		-- Portrait
 		PortraitBorderTexture = GetMedia("portrait_frame_hi"),
 		PortraitBorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
-
+		-- Portrait Threat
+		PortraitThreatSize = { 187, 187 },
+		PortraitThreatPosition = { "CENTER", -1, 3 },
+		PortraitThreatTexture = GetMedia("portrait_frame_glow"),
 	},
 	Seasoned = {
 
@@ -305,12 +322,18 @@ Config.Target = {
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
+		-- Health Bar Threat
+		HealthThreatSize = { 716, 188 },
+		HealthThreatPosition = { "TOPRIGHT", 23.5, 8.5 },
 		HealthThreatTexture = GetMedia("hp_cap_case_glow"),
 
 		-- Portrait
 		PortraitBorderTexture = GetMedia("portrait_frame_hi"),
 		PortraitBorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
-
+		-- Portrait Threat
+		PortraitThreatSize = { 187, 187 },
+		PortraitThreatPosition = { "CENTER", -1, 3 },
+		PortraitThreatTexture = GetMedia("portrait_frame_glow"),
 	},
 	Boss = {
 
@@ -326,10 +349,17 @@ Config.Target = {
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
+		-- Health Bar Threat
+		HealthThreatSize = { 697, 192 },
+		HealthThreatPosition = { "TOPRIGHT", -58, 10.5 },
 		HealthThreatTexture = GetMedia("hp_boss_case_glow"),
 
 		-- Portrait
 		PortraitBorderTexture = GetMedia("portrait_frame_hi"),
 		PortraitBorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+		-- Portrait Threat
+		PortraitThreatSize = { 187, 187 },
+		PortraitThreatPosition = { "CENTER", -1, 3 },
+		PortraitThreatTexture = GetMedia("portrait_frame_glow"),
 	}
 }
