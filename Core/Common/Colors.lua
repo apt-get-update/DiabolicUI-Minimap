@@ -168,6 +168,12 @@ Colors.quest.yellow = createColor(255 / 255, 178 / 255, 38 / 255)
 Colors.quest.green = createColor(89 / 255, 201 / 255, 89 / 255)
 Colors.quest.gray = createColor(120 / 255, 120 / 255, 120 / 255)
 
+-- Pet Happiness
+Colors.happiness = {
+	[1] = { 0.78, 0.25, 0.18 }, -- red face (unhappy)
+	[2] = { 0.78, 0.69, 0.29 }, -- yellow face (neutral)
+	[3] = { 0.22, 0.58, 0.22 }, -- green face (happy)
+}
 -- Unit Class
 -- Original colors at https://wow.gamepedia.com/Class#Class_colors
 -- *Note that for classic, SHAMAN and PALADIN are the same.
