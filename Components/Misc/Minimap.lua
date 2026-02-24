@@ -264,7 +264,7 @@ end
 
 local Minimap_OnMouseUp = function(self, button)
     if (button == "RightButton") then
-        MinimapMod:ShowMinimapTrackingMenu()
+        ToggleDropDownMenu(1, nil, MiniMapTrackingDropDown, "cursor")
     else
         local func = Minimap.OnClick or Minimap_OnClick
         if (func) then
@@ -631,65 +631,6 @@ MinimapMod.CreateCustomElements = function(self)
     mailFrame:SetAllPoints(mail)
 
     self.mail = mail
-
-    local dropdown = CreateFrame("Frame", ns.Prefix .. "MiniMapTrackingDropDown", UIParent, "UIDropDownMenuTemplate")
-    dropdown:SetID(1)
-    dropdown:SetClampedToScreen(true)
-    dropdown:Hide()
-    self.ShowMinimapTrackingMenu = function(self)
-        local hasTracking
-        local trackingMenu = { { text = TRACKING or "Select Tracking", isTitle = true, notCheckable = true } }
-        local function trackingMenuContainsName(menu, name)
-            for _, item in ipairs(menu) do
-                if type(item) == "table" and item.text == name then
-                    return true
-                end
-            end
-            return false
-        end
-        for _, spellID in ipairs({
-            1494,  --Track Beasts
-            19883, --Track Humanoids
-            19884, --Track Undead
-            19885, --Track Hidden
-            19880, --Track Elementals
-            19878, --Track Demons
-            19882, --Track Giants
-            19879, --Track Dragonkin
-            5225,  --Track Humanoids: Druid
-            5500,  --Sense Demons
-            5502,  --Sense Undead
-            2383,  --Find Herbs
-            2580,  --Find Minerals
-            2481   --Find Treasure
-        }) do
-            local spellName = GetSpellInfo(spellID)
-            local isUsable = IsUsableSpell(spellName);
-            if (isUsable and not trackingMenuContainsName(trackingMenu, spellName)) then
-                hasTracking = true
-                local tracking = GetTrackingTexture()
-                local spellTexture = GetSpellTexture(spellName)
-                table_insert(trackingMenu, {
-                    text = spellName,
-                    icon = spellTexture,
-                    checked = tracking == spellTexture,
-                    func = function() CastSpellByID(spellID) end,
-                })
-            end
-        end
-        if (hasTracking) then
-            table_insert(trackingMenu, {
-                text = OBJECTIVES_STOP_TRACKING,
-                notCheckable = true,
-                func = function() SetTracking(nil) end
-            })
-            EasyMenu(trackingMenu, dropdown, "cursor", 0, 0, "MENU")
-        end
-    end
-    UIDropDownMenu_Initialize(dropdown, MiniMapTrackingDropDown_Initialize, "MENU")
-    dropdown.noResize = true
-
-    self.dropdown = dropdown
 
     self:UpdateCustomElements()
     self.CreateCustomElements = noop

@@ -211,7 +211,18 @@ UnitFrames.RegisterStyles = function(self)
         self.isUnitFrame = true
         self.colors = ns.Colors
 
-        self:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+        self:RegisterForClicks("AnyUp")
+        self:SetAttribute("unit", unit)
+        self:SetScript("OnMouseUp", function(self, button)
+            if button == "RightButton" and self.unit then
+                local unit = self.unit
+                local dropdownName = unit:sub(1,1):upper()..unit:sub(2).."FrameDropDown"
+                local dropdown = _G[dropdownName]
+                if dropdown then
+                    ToggleDropDownMenu(1, nil, dropdown, "cursor")
+                end
+            end
+        end)
         self:SetScript("OnEnter", OnEnter)
         self:SetScript("OnLeave", OnLeave)
         self:SetScript("OnHide", OnHide)
