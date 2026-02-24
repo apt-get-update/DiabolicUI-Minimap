@@ -444,7 +444,6 @@ local UnitFrame_UpdateTextures = function(self)
     local threat = self.ThreatIndicator
     if (threat) then
         for key, texture in next, threat.textures do
-            print("Updating ThreatIndicator texture:", key)
             texture:ClearAllPoints()
             texture:SetPoint(unpack(db[key .. "ThreatPosition"]))
             texture:SetSize(unpack(db[key .. "ThreatSize"]))

@@ -2,7 +2,7 @@
 
 	The MIT License (MIT)
 
-	Copyright (c) 2023 Lars Norberg
+	Copyright (c) 2024 Lars Norberg
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -33,41 +33,41 @@ local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 
 local barSparkMap = {
-	{ keyPercent = 0 / 512, topOffset = -24 / 64, bottomOffset = -39 / 64 },
-	{ keyPercent = 9 / 512, topOffset = 0 / 64, bottomOffset = -16 / 64 },
-	{ keyPercent = 460 / 512, topOffset = 0 / 64, bottomOffset = -16 / 64 },
-	{ keyPercent = 478 / 512, topOffset = 0 / 64, bottomOffset = 0 / 64 },
-	{ keyPercent = 483 / 512, topOffset = 0 / 64, bottomOffset = -3 / 64 },
-	{ keyPercent = 507 / 512, topOffset = 0 / 64, bottomOffset = -46 / 64 },
+	{ keyPercent = 0 / 512,   topOffset = -24 / 64, bottomOffset = -39 / 64 },
+	{ keyPercent = 9 / 512,   topOffset = 0 / 64,   bottomOffset = -16 / 64 },
+	{ keyPercent = 460 / 512, topOffset = 0 / 64,   bottomOffset = -16 / 64 },
+	{ keyPercent = 478 / 512, topOffset = 0 / 64,   bottomOffset = 0 / 64 },
+	{ keyPercent = 483 / 512, topOffset = 0 / 64,   bottomOffset = -3 / 64 },
+	{ keyPercent = 507 / 512, topOffset = 0 / 64,   bottomOffset = -46 / 64 },
 	{ keyPercent = 512 / 512, topOffset = -11 / 64, bottomOffset = -54 / 64 }
 }
 
 local bigBarSparkMap = {
 	top = {
-		{ keyPercent = 0 / 1024,  offset = -24 / 64 },
-		{ keyPercent = 13 / 1024, offset = 0 / 64 },
+		{ keyPercent = 0 / 1024,    offset = -24 / 64 },
+		{ keyPercent = 13 / 1024,   offset = 0 / 64 },
 		{ keyPercent = 1018 / 1024, offset = 0 / 64 },
 		{ keyPercent = 1024 / 1024, offset = -10 / 64 }
 	},
 	bottom = {
-		{ keyPercent = 0 / 1024,  offset = -39 / 64 },
-		{ keyPercent = 13 / 1024, offset = -16 / 64 },
-		{ keyPercent = 949 / 1024, offset = -16 / 64 },
-		{ keyPercent = 977 / 1024, offset = -1 / 64 },
-		{ keyPercent = 984 / 1024, offset = -2 / 64 },
+		{ keyPercent = 0 / 1024,    offset = -39 / 64 },
+		{ keyPercent = 13 / 1024,   offset = -16 / 64 },
+		{ keyPercent = 949 / 1024,  offset = -16 / 64 },
+		{ keyPercent = 977 / 1024,  offset = -1 / 64 },
+		{ keyPercent = 984 / 1024,  offset = -2 / 64 },
 		{ keyPercent = 1024 / 1024, offset = -52 / 64 }
 	}
 }
 
 local tinyBarSparkMap = {
 	top = {
-		{ keyPercent = 0 / 64, offset = -30 / 64 },
+		{ keyPercent = 0 / 64,  offset = -30 / 64 },
 		{ keyPercent = 14 / 64, offset = -1 / 64 },
 		{ keyPercent = 49 / 64, offset = -1 / 64 },
 		{ keyPercent = 64 / 64, offset = -34 / 64 }
 	},
 	bottom = {
-		{ keyPercent = 0 / 64, offset = -30 / 64 },
+		{ keyPercent = 0 / 64,  offset = -30 / 64 },
 		{ keyPercent = 15 / 64, offset = 0 / 64 },
 		{ keyPercent = 32 / 64, offset = -1 / 64 },
 		{ keyPercent = 50 / 64, offset = -4 / 64 },
@@ -79,9 +79,9 @@ Config.Target = {
 
 	-- General Settings
 	-----------------------------------------
-	Size = { 439, 93 },
-	Position = { "TOPRIGHT", -153, -79 },
-	HitRectInsets = { 0, -110, -40, -26 },
+	Size = { 550, 210 },
+	Position = { "TOPRIGHT", -40, -46 },
+	HitRectInsets = { 0, 0, 0, 60 },
 	IsFlippedHorizontally = true,
 
 	-- Health Value Text
@@ -99,7 +99,7 @@ Config.Target = {
 	HealthPercentageColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
 
 	-- Power Crystal
-	PowerBarPosition = { "CENTER", 439 / 2 + 79 + 2, -6 + 93 / 2 - 62 + 4 + 6 },
+	PowerBarPosition = { "TOPRIGHT", 8, -58 }, -- "CENTER", 188, -51
 	PowerBarSize = { 80, 80 },
 	PowerBarAlpha = .75,
 	PowerBarTexture = GetMedia("power_crystal_small_front"),
@@ -129,7 +129,7 @@ Config.Target = {
 	CastBarValueJustifyH = "CENTER",
 	CastBarValueJustifyV = "MIDDLE",
 	CastBarValueFont = GetFont(18, true),
-	CastBarValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
+	CastBarValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .75 },
 
 	-- Combat Feedback Text
 	CombatFeedbackAnchorElement = "Health",
@@ -139,7 +139,7 @@ Config.Target = {
 	CombatFeedbackFontSmall = GetFont(18, true), -- glancing blow font
 
 	-- Unit Name
-	NamePosition = { "TOPRIGHT", -40, 18 },
+	NamePosition = { "TOPRIGHT", -153, -21 },
 	NameSize = { 250, 18 },
 	NameJustifyH = "RIGHT",
 	NameJustifyV = "TOP",
@@ -147,27 +147,30 @@ Config.Target = {
 	NameColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .75 },
 
 	-- Portrait
-	PortraitPosition = { "TOPRIGHT", 73, 8 },
+	-----------------------------------------
+	PortraitPosition = { "TOPRIGHT", -40, -31 },
 	PortraitSize = { 85, 85 },
 	PortraitAlpha = .85,
-	PortraitBackgroundPosition = { "TOPRIGHT", 116, 55 },
+	PortraitBackgroundPosition = { "TOPRIGHT", 3, 16 },
 	PortraitBackgroundSize = { 173, 173 },
 	PortraitBackgroundTexture = GetMedia("party_portrait_back"),
 	PortraitBackgroundColor = { .5, .5, .5 },
-	PortraitShadePosition = { "TOPRIGHT", 83, 21 },
+	PortraitShadePosition = { "TOPRIGHT", -30, -18 },
 	PortraitShadeSize = { 107, 107 },
 	PortraitShadeTexture = GetMedia("shade-circle"),
-	PortraitBorderPosition = { "TOPRIGHT", 123, 61 },
+	PortraitBorderPosition = { "TOPRIGHT", 10, 22 },
 	PortraitBorderSize = { 187, 187 },
 
 	-- PvP Indicator
-	PvPIndicatorPosition = { "BOTTOMRIGHT", 72, -43 },
+	-----------------------------------------
+	PvPIndicatorPosition = { "TOPRIGHT", -41, -91 },
 	PvPIndicatorSize = { 84, 84 },
 	PvPIndicatorAllianceTexture = GetMedia("icon_badges_alliance"),
 	PvPIndicatorHordeTexture = GetMedia("icon_badges_horde"),
 
 	-- Classification
-	ClassificationPosition = { "BOTTOMRIGHT", 72, -43 },
+	-----------------------------------------
+	ClassificationPosition = { "TOPRIGHT", -41, -91 },
 	ClassificationSize = { 84, 84 },
 	ClassificationAllianceTexture = GetMedia("icon_badges_alliance"),
 	ClassificationBossTexture = GetMedia("icon_badges_boss"),
@@ -176,7 +179,8 @@ Config.Target = {
 	ClassificationRareTexture = GetMedia("icon_classification_rare"),
 
 	-- Target Indicator
-	TargetIndicatorPosition = { "TOPRIGHT", 38, 36 },
+	-----------------------------------------
+	TargetIndicatorPosition = { "TOPRIGHT", -75, -3 },
 	TargetIndicatorSize = { 96, 48 },
 	TargetIndicatorColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 	TargetIndicatorPetByEnemyTexture = GetMedia("icon_target_blue"),
@@ -185,12 +189,12 @@ Config.Target = {
 
 	-- Auras
 	-----------------------------------------
-	AurasPosition = { "TOPRIGHT", -37, -87 },
-	AurasSize = { 40 * 6 - 4, 40 * 2 - 4 },
-	AurasSizeBoss = { 40 * 10 - 4, 40 * 2 - 4 },
+	AurasPosition = { "TOPRIGHT", -150, -126 },
+	AurasSize = { 316, 76 },
+	AurasSizeBoss = { 396, 76 },
 	AuraSize = 36,
 	AuraSpacing = 4,
-	AurasNumTotal = 12,
+	AurasNumTotal = 16,
 	AurasNumTotalBoss = 20,
 	AurasDisableMouse = false,
 	AurasDisableCooldown = false,
@@ -209,7 +213,7 @@ Config.Target = {
 	-----------------------------------------
 	Seasonal = {
 		-- Love Festival Target Eye
-		LoveFestivalCombatIndicatorPosition = { "TOPRIGHT", 14, 36 },
+		LoveFestivalCombatIndicatorPosition = { "TOPRIGHT", -99, -3 },
 		LoveFestivalTargetIndicatorSize = { 48, 48 },
 		LoveFestivalTargetIndicatorPetByEnemyTexture = GetMedia("icon-heart-blue"),
 		LoveFestivalTargetIndicatorYouByEnemyTexture = GetMedia("icon-heart-red"),
@@ -232,134 +236,162 @@ Config.Target = {
 	Critter = {
 
 		-- Health Bar
+		-----------------------------------------
 		HealthBarSize = { 40, 36 },
-		HealthBarPosition = { "TOPRIGHT", -24, -24 },
+		HealthBarPosition = { "TOPRIGHT", -137, -66 },
 		HealthBarTexture = GetMedia("hp_critter_bar"),
 		HealthBarColor = { Colors.health[1], Colors.health[2], Colors.health[3] },
 		HealthBarOrientation = "LEFT",
 		HealthBarSparkMap = tinyBarSparkMap,
-		HealthBackdropSize = { 98, 96 },
-		HealthBackdropPosition = { "CENTER", 0, 1 },
+		HealthBackdropSize = { 105, 104 },
+		HealthBackdropPosition = { "TOPRIGHT", -104, -28.5 },
 		HealthBackdropTexture = GetMedia("hp_critter_case"),
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
+
 		-- Health Bar Threat
 		HealthThreatSize = { 105, 104 },
 		HealthThreatPosition = { "TOPRIGHT", -104, -28.5 },
 		HealthThreatTexture = GetMedia("hp_critter_case_glow"),
 
+		-- Portrait
+		-----------------------------------------
 		PortraitBorderTexture = GetMedia("portrait_frame_lo"),
 		PortraitBorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+
 		-- Portrait Threat
 		PortraitThreatSize = { 187, 187 },
 		PortraitThreatPosition = { "CENTER", -1, 3 },
 		PortraitThreatTexture = GetMedia("portrait_frame_glow"),
+
 	},
 	Novice = {
 
 		-- Health Bar
+		-----------------------------------------
 		HealthBarSize = { 385, 37 },
-		HealthBarPosition = { "TOPRIGHT", -27, -27 },
+		HealthBarPosition = { "TOPRIGHT", -140, -66 },
 		HealthBarTexture = GetMedia("hp_lowmid_bar"),
 		HealthBarOrientation = "LEFT",
 		HealthBarSparkMap = barSparkMap,
 		HealthBackdropSize = { 716, 188 },
-		HealthBackdropPosition = { "CENTER", -1, -.5 },
+		HealthBackdropPosition = { "TOPRIGHT", 24.5, 8.5 },
 		HealthBackdropTexture = GetMedia("hp_low_case"),
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
+
 		-- Health Bar Threat
 		HealthThreatSize = { 716, 188 },
 		HealthThreatPosition = { "TOPRIGHT", 24.5, 8.5 },
 		HealthThreatTexture = GetMedia("hp_low_case_glow"),
+
 		-- Portrait
+		-----------------------------------------
 		PortraitBorderTexture = GetMedia("portrait_frame_lo"),
 		PortraitBorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+
 		-- Portrait Threat
 		PortraitThreatSize = { 187, 187 },
 		PortraitThreatPosition = { "CENTER", -1, 3 },
 		PortraitThreatTexture = GetMedia("portrait_frame_glow"),
+
 	},
 	Hardened = {
 
 		-- Health Bar
+		-----------------------------------------
 		HealthBarSize = { 385, 37 },
-		HealthBarPosition = { "TOPRIGHT", -27, -27 },
+		HealthBarPosition = { "TOPRIGHT", -140, -66 },
 		HealthBarTexture = GetMedia("hp_lowmid_bar"),
 		HealthBarOrientation = "LEFT",
 		HealthBarSparkMap = barSparkMap,
 		HealthBackdropSize = { 716, 188 },
-		HealthBackdropPosition = { "CENTER", -2, -1 },
+		HealthBackdropPosition = { "TOPRIGHT", 24.5, 7.5 },
 		HealthBackdropTexture = GetMedia("hp_mid_case"),
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
+
 		-- Health Bar Threat
 		HealthThreatSize = { 716, 188 },
 		HealthThreatPosition = { "TOPRIGHT", 24.5, 7.5 },
 		HealthThreatTexture = GetMedia("hp_mid_case_glow"),
+
 		-- Portrait
+		-----------------------------------------
 		PortraitBorderTexture = GetMedia("portrait_frame_hi"),
 		PortraitBorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+
 		-- Portrait Threat
 		PortraitThreatSize = { 187, 187 },
 		PortraitThreatPosition = { "CENTER", -1, 3 },
 		PortraitThreatTexture = GetMedia("portrait_frame_glow"),
+
 	},
 	Seasoned = {
 
 		-- Health Bar
+		-----------------------------------------
 		HealthBarSize = { 385, 37 },
-		HealthBarPosition = { "TOPRIGHT", -27, -27 },
+		HealthBarPosition = { "TOPRIGHT", -140, -66 },
 		HealthBarTexture = GetMedia("hp_cap_bar"),
 		HealthBarOrientation = "LEFT",
 		HealthBarSparkMap = barSparkMap,
 		HealthBackdropSize = { 716, 188 },
-		HealthBackdropPosition = { "CENTER", -2, -1 },
+		HealthBackdropPosition = { "TOPRIGHT", 23.5, 8.5 },
 		HealthBackdropTexture = GetMedia("hp_cap_case"),
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
+
 		-- Health Bar Threat
 		HealthThreatSize = { 716, 188 },
 		HealthThreatPosition = { "TOPRIGHT", 23.5, 8.5 },
 		HealthThreatTexture = GetMedia("hp_cap_case_glow"),
 
 		-- Portrait
+		-----------------------------------------
 		PortraitBorderTexture = GetMedia("portrait_frame_hi"),
 		PortraitBorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+
 		-- Portrait Threat
 		PortraitThreatSize = { 187, 187 },
 		PortraitThreatPosition = { "CENTER", -1, 3 },
 		PortraitThreatTexture = GetMedia("portrait_frame_glow"),
+
 	},
 	Boss = {
 
 		-- Health Bar
+		-----------------------------------------
 		HealthBarSize = { 533, 40 },
-		HealthBarPosition = { "TOPRIGHT", -27, -27 },
+		HealthBarPosition = { "TOPRIGHT", -140, -66 },
 		HealthBarTexture = GetMedia("hp_boss_bar"),
 		HealthBarOrientation = "LEFT",
 		HealthBarSparkMap = bigBarSparkMap,
-		HealthBackdropSize = { 694, 190 },
-		HealthBackdropPosition = { "CENTER", -.5, 1 },
+		HealthBackdropSize = { 697, 192 },
+		HealthBackdropPosition = { "TOPRIGHT", -58, 10.5 },
 		HealthBackdropTexture = GetMedia("hp_boss_case"),
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
+
 		-- Health Bar Threat
 		HealthThreatSize = { 697, 192 },
 		HealthThreatPosition = { "TOPRIGHT", -58, 10.5 },
 		HealthThreatTexture = GetMedia("hp_boss_case_glow"),
 
 		-- Portrait
+		-----------------------------------------
 		PortraitBorderTexture = GetMedia("portrait_frame_hi"),
 		PortraitBorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+
 		-- Portrait Threat
 		PortraitThreatSize = { 187, 187 },
 		PortraitThreatPosition = { "CENTER", -1, 3 },
 		PortraitThreatTexture = GetMedia("portrait_frame_glow"),
+
 	}
 }
