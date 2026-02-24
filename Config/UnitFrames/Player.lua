@@ -2,7 +2,7 @@
 
 	The MIT License (MIT)
 
-	Copyright (c) 2023 Lars Norberg
+	Copyright (c) 2024 Lars Norberg
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -48,7 +48,7 @@ local crystalSparkMap = {
 		{ keyPercent = 72 / 256,  offset = 0 / 256 },
 		{ keyPercent = 116 / 256, offset = -16 / 256 },
 		{ keyPercent = 128 / 256, offset = -28 / 256 },
-		{ keyPercent = 256 / 256, offset = -84 / 256 },
+		{ keyPercent = 256 / 256, offset = -84 / 256 }
 	},
 	bottom = {
 		{ keyPercent = 0 / 256,   offset = -47 / 256 },
@@ -56,31 +56,17 @@ local crystalSparkMap = {
 		{ keyPercent = 135 / 256, offset = -24 / 256 },
 		{ keyPercent = 142 / 256, offset = -32 / 256 },
 		{ keyPercent = 225 / 256, offset = -79 / 256 },
-		{ keyPercent = 256 / 256, offset = -168 / 256 },
+		{ keyPercent = 256 / 256, offset = -168 / 256 }
 	}
 }
 
 Config.Player = {
 
-	-- Portrait
-	PortraitPosition = { "TOPRIGHT", 73, 8 },
-	PortraitSize = { 85, 85 },
-	PortraitAlpha = .85,
-	PortraitBackgroundPosition = { "TOPRIGHT", 116, 55 },
-	PortraitBackgroundSize = { 173, 173 },
-	PortraitBackgroundTexture = GetMedia("party_portrait_back"),
-	PortraitBackgroundColor = { .5, .5, .5 },
-	PortraitShadePosition = { "TOPRIGHT", 83, 21 },
-	PortraitShadeSize = { 107, 107 },
-	PortraitShadeTexture = GetMedia("shade-circle"),
-	PortraitBorderPosition = { "TOPRIGHT", 123, 61 },
-	PortraitBorderSize = { 187, 187 },
-
 	-- General Settings
 	-----------------------------------------
-	Size = { 439, 93 },
-	Position = { "BOTTOMLEFT", 167, 100 },
-	HitRectInsets = { 0, 0, 0, 6 },
+	Size = { 560, 180 },
+	Position = { "BOTTOMLEFT", 45, 100 },
+	HitRectInsets = { 0, 0, 30, -2 },
 
 	-- Health Value Text
 	HealthValuePosition = { "LEFT", 27, 4 },
@@ -92,7 +78,7 @@ Config.Player = {
 	-- Mana Value Text (when mana is not primary resource)
 	ManaTextPosition = { "CENTER", 1, -34 },
 	ManaTextFont = GetFont(15, true),
-	ManaTextColor = { Colors.red[1], Colors.red[2], Colors.red[3], .75 },
+	ManaTextColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .85 },
 	ManaTextJustifyH = "CENTER",
 	ManaTextJustifyV = "MIDDLE",
 
@@ -101,7 +87,7 @@ Config.Player = {
 	PowerValueJustifyH = "CENTER",
 	PowerValueJustifyV = "MIDDLE",
 	PowerValueFont = GetFont(18, true),
-	PowerValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
+	PowerValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .75 },
 
 	-- Mana Orb Value Text
 	ManaValuePosition = { "CENTER", 3, 0 },
@@ -111,6 +97,7 @@ Config.Player = {
 	ManaValueFont = GetFont(18, true),
 
 	-- Castbar Name Text
+	CastBarTextFont = GetFont(16, true),
 	CastBarTextColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
 	CastBarTextProtectedColor = { Colors.normal[1], Colors.normal[2], Colors.normal[3], .75 },
 
@@ -119,7 +106,7 @@ Config.Player = {
 	CastBarValueJustifyH = "CENTER",
 	CastBarValueJustifyV = "MIDDLE",
 	CastBarValueFont = GetFont(18, true),
-	CastBarValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
+	CastBarValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .75 },
 
 	-- Combat Feedback Text
 	CombatFeedbackAnchorElement = "Health",
@@ -129,20 +116,20 @@ Config.Player = {
 	CombatFeedbackFontSmall = GetFont(18, true), -- glancing blow font
 
 	-- Combat Indicator
-	CombatIndicatorPosition = { "BOTTOMLEFT", -81, -18 },
+	CombatIndicatorPosition = { "BOTTOMLEFT", 40, -18 },
 	CombatIndicatorSize = { 80, 80 },
 	CombatIndicatorTexture = GetMedia("icon-combat"),
 	CombatIndicatorColor = { Colors.ui[1] * .75, Colors.ui[2] * .75, Colors.ui[3] * .75 },
 
 	-- PvP Indicator
-	PvPIndicatorPosition = { "BOTTOMLEFT", -81, -18 },
+	PvPIndicatorPosition = { "BOTTOMLEFT", 40, -18 },
 	PvPIndicatorSize = { 84, 84 },
 	PvPIndicatorAllianceTexture = GetMedia("icon_badges_alliance"),
 	PvPIndicatorHordeTexture = GetMedia("icon_badges_horde"),
 
 	-- Auras
 	-----------------------------------------
-	AurasPosition = { "BOTTOMLEFT", 37, 91 },
+	AurasPosition = { "BOTTOMLEFT", 158, 91 },
 	AurasSize = { 40 * 8 - 4, 40 * 2 - 4 },
 	AuraSize = 36,
 	AuraSpacing = 4,
@@ -164,7 +151,7 @@ Config.Player = {
 	-----------------------------------------
 	Seasonal = {
 		-- Love Festival Combat Indicator
-		LoveFestivalCombatIndicatorPosition = { "BOTTOMLEFT", -61, 2 },
+		LoveFestivalCombatIndicatorPosition = { "BOTTOMLEFT", 60, 2 },
 		LoveFestivalCombatIndicatorSize = { 48, 48 },
 		LoveFestivalCombatIndicatorTexture = GetMedia("icon-heart-red"),
 		LoveFestivalCombatIndicatorColor = { Colors.ui[1] * .75, Colors.ui[2] * .75, Colors.ui[3] * .75 },
@@ -196,40 +183,56 @@ Config.Player = {
 	Novice = {
 
 		-- Health Bar
+		-----------------------------------------
 		HealthBarSize = { 385, 37 },
-		HealthBarPosition = { "BOTTOMLEFT", 27, 27 },
+		HealthBarPosition = { "BOTTOMLEFT", 148, 27 },
 		HealthBarTexture = GetMedia("hp_lowmid_bar"),
 		HealthBarColor = { Colors.health[1], Colors.health[2], Colors.health[3] },
 		HealthBarOrientation = "RIGHT",
 		HealthBarSparkMap = barSparkMap,
 		HealthBackdropSize = { 716, 188 },
-		HealthBackdropPosition = { "CENTER", 1, -.5 },
+		HealthBackdropPosition = { "BOTTOMLEFT", -17, -48 },
 		HealthBackdropTexture = GetMedia("hp_low_case"),
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
+		-- Health Bar Threat
+		HealthThreatSize = { 716, 188 },
+		HealthThreatPosition = { "BOTTOMLEFT", -15, -47 },
 		HealthThreatTexture = GetMedia("hp_low_case_glow"),
 
 		-- Power Crystal
+		-----------------------------------------
 		PowerBarSize = { 120, 140 },
-		PowerBarPosition = { "BOTTOMLEFT", -101, 38 },
+		PowerBarPosition = { "BOTTOMLEFT", 20, 38 },
 		PowerBarTexture = GetMedia("power_crystal_front"),
+		PowerBarTextureWrath = GetMedia("power-crystal-ice-front"),
 		PowerBarTexCoord = { 50 / 255, 206 / 255, 37 / 255, 219 / 255 },
 		PowerBarOrientation = "UP",
 		PowerBarSparkMap = crystalSparkMap,
 
 		PowerBackdropSize = { 196, 196 },
 		PowerBackdropPosition = { "CENTER", 0, 0 },
-		PowerBackdropTexture = ns.IsWrath and GetMedia("power-crystal-ice-back") or GetMedia("power_crystal_back"),
+		PowerBackdropTexture = GetMedia("power_crystal_back"),
+		PowerBackdropTextureWrath = GetMedia("power-crystal-ice-back"),
 
 		PowerBarForegroundSize = { 198, 98 },
 		PowerBarForegroundPosition = { "BOTTOM", 7, -51 },
 		PowerBarForegroundTexture = GetMedia("pw_crystal_case_low"),
 		PowerBarForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
+		-- Power Crystal Threat
+		PowerBarThreatSize = { 196, 196 },
+		PowerBarThreatPosition = { "CENTER", 0, 1 },
+		PowerBarThreatTexture = GetMedia("power_crystal_glow"),
+
+		PowerBackdropThreatSize = { 198, 98 },
+		PowerBackdropThreatPosition = { "BOTTOM", 7, -51 },
+		PowerBackdropThreatTexture = GetMedia("pw_crystal_case_glow"),
 		-- Mana Orb
+		-----------------------------------------
 		ManaOrbSize = { 103, 103 },
-		ManaOrbPosition = { "BOTTOMLEFT", -92, 27 },
+		ManaOrbPosition = { "BOTTOMLEFT", 29, 27 },
 		ManaOrbTexture = { GetMedia("orb2"), GetMedia("orb2") },
 
 		ManaOrbBackdropSize = { 180, 180 },
@@ -247,45 +250,65 @@ Config.Player = {
 		ManaOrbForegroundTexture = GetMedia("orb_case_low"),
 		ManaOrbForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
+		-- Mana Orb Threat
+		ManaOrbThreatSize = { 188, 188 },
+		ManaOrbThreatPosition = { "CENTER", 0, 0 },
+		ManaOrbThreatTexture = GetMedia("orb_case_glow")
 
 	},
 	Hardened = {
 
 		-- Health Bar
+		-----------------------------------------
 		HealthBarSize = { 385, 37 },
-		HealthBarPosition = { "BOTTOMLEFT", 27, 27 },
+		HealthBarPosition = { "BOTTOMLEFT", 148, 27 },
 		HealthBarTexture = GetMedia("hp_lowmid_bar"),
 		HealthBarColor = { Colors.health[1], Colors.health[2], Colors.health[3] },
 		HealthBarOrientation = "RIGHT",
 		HealthBarSparkMap = barSparkMap,
 		HealthBackdropSize = { 716, 188 },
-		HealthBackdropPosition = { "CENTER", 1, -.5 },
+		HealthBackdropPosition = { "BOTTOMLEFT", -17, -48 },
 		HealthBackdropTexture = GetMedia("hp_mid_case"),
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
-		HealthThreatTexture = GetMedia("hp_mid_case_glow"),
+		-- Health Bar Threat
+		HealthThreatSize = { 716, 188 },
+		HealthThreatPosition = { "BOTTOMLEFT", -15, -47 },
+		HealthThreatTexture = GetMedia("hp_low_case_glow"),
 
 		-- Power Crystal
+		-----------------------------------------
 		PowerBarSize = { 120, 140 },
-		PowerBarPosition = { "BOTTOMLEFT", -101, 38 },
+		PowerBarPosition = { "BOTTOMLEFT", 20, 38 },
 		PowerBarTexture = GetMedia("power_crystal_front"),
+		PowerBarTextureWrath = GetMedia("power-crystal-ice-front"),
 		PowerBarTexCoord = { 50 / 255, 206 / 255, 37 / 255, 219 / 255 },
 		PowerBarOrientation = "UP",
 		PowerBarSparkMap = crystalSparkMap,
 
 		PowerBackdropSize = { 196, 196 },
 		PowerBackdropPosition = { "CENTER", 0, 0 },
-		PowerBackdropTexture = ns.IsWrath and GetMedia("power-crystal-ice-back") or GetMedia("power_crystal_back"),
+		PowerBackdropTexture = GetMedia("power_crystal_back"),
+		PowerBackdropTextureWrath = GetMedia("power-crystal-ice-back"),
 
 		PowerBarForegroundSize = { 198, 98 },
 		PowerBarForegroundPosition = { "BOTTOM", 7, -51 },
 		PowerBarForegroundTexture = GetMedia("pw_crystal_case"),
 		PowerBarForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
+		-- Power Crystal Threat
+		PowerBarThreatSize = { 196, 196 },
+		PowerBarThreatPosition = { "CENTER", 0, 1 },
+		PowerBarThreatTexture = GetMedia("power_crystal_glow"),
+
+		PowerBackdropThreatSize = { 198, 98 },
+		PowerBackdropThreatPosition = { "BOTTOM", 7, -51 },
+		PowerBackdropThreatTexture = GetMedia("pw_crystal_case_glow"),
 		-- Mana Orb
+		-----------------------------------------
 		ManaOrbSize = { 103, 103 },
-		ManaOrbPosition = { "BOTTOMLEFT", -92, 27 },
+		ManaOrbPosition = { "BOTTOMLEFT", 29, 27 },
 		ManaOrbTexture = { GetMedia("orb2"), GetMedia("orb2") },
 
 		ManaOrbBackdropSize = { 180, 180 },
@@ -303,44 +326,64 @@ Config.Player = {
 		ManaOrbForegroundTexture = GetMedia("orb_case_hi"),
 		ManaOrbForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
+		-- Mana Orb Threat
+		ManaOrbThreatSize = { 188, 188 },
+		ManaOrbThreatPosition = { "CENTER", 0, 0 },
+		ManaOrbThreatTexture = GetMedia("orb_case_glow")
 	},
 	Seasoned = {
 
 		-- Health Bar
+		-----------------------------------------
 		HealthBarSize = { 385, 40 },
-		HealthBarPosition = { "BOTTOMLEFT", 27, 27 },
+		HealthBarPosition = { "BOTTOMLEFT", 148, 27 },
 		HealthBarTexture = GetMedia("hp_cap_bar"),
 		HealthBarColor = { Colors.health[1], Colors.health[2], Colors.health[3] },
 		HealthBarOrientation = "RIGHT",
 		HealthBarSparkMap = barSparkMap,
 		HealthBackdropSize = { 716, 188 },
-		HealthBackdropPosition = { "CENTER", 1, -.5 },
+		HealthBackdropPosition = { "BOTTOMLEFT", -17, -48 },
 		HealthBackdropTexture = GetMedia("hp_cap_case"),
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
-		HealthThreatTexture = GetMedia("hp_cap_case_glow"),
+		-- Health Bar Threat
+		HealthThreatSize = { 716, 188 },
+		HealthThreatPosition = { "BOTTOMLEFT", -15, -47 },
+		HealthThreatTexture = GetMedia("hp_low_case_glow"),
 
 		-- Power Crystal
+		-----------------------------------------
 		PowerBarSize = { 120, 140 },
-		PowerBarPosition = { "BOTTOMLEFT", -101, 38 },
+		PowerBarPosition = { "BOTTOMLEFT", 20, 38 },
 		PowerBarTexture = GetMedia("power_crystal_front"),
+		PowerBarTextureWrath = GetMedia("power-crystal-ice-front"),
 		PowerBarTexCoord = { 50 / 255, 206 / 255, 37 / 255, 219 / 255 },
 		PowerBarOrientation = "UP",
 		PowerBarSparkMap = crystalSparkMap,
 
 		PowerBackdropSize = { 196, 196 },
 		PowerBackdropPosition = { "CENTER", 0, 0 },
-		PowerBackdropTexture = ns.IsWrath and GetMedia("power-crystal-ice-back") or GetMedia("power_crystal_back"),
+		PowerBackdropTexture = GetMedia("power_crystal_back"),
+		PowerBackdropTextureWrath = GetMedia("power-crystal-ice-back"),
 
 		PowerBarForegroundSize = { 198, 98 },
 		PowerBarForegroundPosition = { "BOTTOM", 7, -51 },
 		PowerBarForegroundTexture = GetMedia("pw_crystal_case"),
 		PowerBarForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
+		-- Power Crystal Threat
+		PowerBarThreatSize = { 196, 196 },
+		PowerBarThreatPosition = { "CENTER", 0, 1 },
+		PowerBarThreatTexture = GetMedia("power_crystal_glow"),
+
+		PowerBackdropThreatSize = { 198, 98 },
+		PowerBackdropThreatPosition = { "BOTTOM", 7, -51 },
+		PowerBackdropThreatTexture = GetMedia("pw_crystal_case_glow"),
 		-- Mana Orb
+		-----------------------------------------
 		ManaOrbSize = { 103, 103 },
-		ManaOrbPosition = { "BOTTOMLEFT", -92, 27 },
+		ManaOrbPosition = { "BOTTOMLEFT", 29, 27 },
 		ManaOrbTexture = { GetMedia("orb2"), GetMedia("orb2") },
 
 		ManaOrbBackdropSize = { 180, 180 },
@@ -358,5 +401,9 @@ Config.Player = {
 		ManaOrbForegroundTexture = GetMedia("orb_case_hi"),
 		ManaOrbForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
+		-- Mana Orb Threat
+		ManaOrbThreatSize = { 188, 188 },
+		ManaOrbThreatPosition = { "CENTER", 0, 0 },
+		ManaOrbThreatTexture = GetMedia("orb_case_glow")
 	}
 }

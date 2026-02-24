@@ -379,6 +379,27 @@ local UnitFrame_UpdateTextures = function(self)
         absorb:SetOrientation(orientation)
         absorb:SetSparkMap(db.HealthBarSparkMap)
     end
+    local power = self.Power
+    power:ClearAllPoints()
+    power:SetPoint(unpack(db.PowerBarPosition))
+    power:SetSize(unpack(db.PowerBarSize))
+    power:SetStatusBarTexture(db.PowerBarTexture)
+    power:SetTexCoord(unpack(db.PowerBarTexCoord))
+    power:SetOrientation(db.PowerBarOrientation)
+    power:SetSparkMap(db.PowerBarSparkMap)
+
+    local powerBackdrop = self.Power.Backdrop
+    powerBackdrop:ClearAllPoints()
+    powerBackdrop:SetPoint(unpack(db.PowerBackdropPosition))
+    powerBackdrop:SetSize(unpack(db.PowerBackdropSize))
+    powerBackdrop:SetTexture(db.PowerBackdropTexture)
+
+    local powerCase = self.Power.Case
+    powerCase:ClearAllPoints()
+    powerCase:SetPoint(unpack(db.PowerBarForegroundPosition))
+    powerCase:SetSize(unpack(db.PowerBarForegroundSize))
+    powerCase:SetTexture(db.PowerBarForegroundTexture)
+    powerCase:SetVertexColor(unpack(db.PowerBarForegroundColor))
     local mana = self.AdditionalPower
     mana:ClearAllPoints()
     mana:SetPoint(unpack(db.ManaOrbPosition))
@@ -411,27 +432,6 @@ local UnitFrame_UpdateTextures = function(self)
     manaCase:SetTexture(db.ManaOrbForegroundTexture)
     manaCase:SetVertexColor(unpack(db.ManaOrbForegroundColor))
 
-    local power = self.Power
-    power:ClearAllPoints()
-    power:SetPoint(unpack(db.PowerBarPosition))
-    power:SetSize(unpack(db.PowerBarSize))
-    power:SetStatusBarTexture(db.PowerBarTexture)
-    power:SetTexCoord(unpack(db.PowerBarTexCoord))
-    power:SetOrientation(db.PowerBarOrientation)
-    power:SetSparkMap(db.PowerBarSparkMap)
-
-    local powerBackdrop = self.Power.Backdrop
-    powerBackdrop:ClearAllPoints()
-    powerBackdrop:SetPoint(unpack(db.PowerBackdropPosition))
-    powerBackdrop:SetSize(unpack(db.PowerBackdropSize))
-    powerBackdrop:SetTexture(db.PowerBackdropTexture)
-
-    local powerCase = self.Power.Case
-    powerCase:ClearAllPoints()
-    powerCase:SetPoint(unpack(db.PowerBarForegroundPosition))
-    powerCase:SetSize(unpack(db.PowerBarForegroundSize))
-    powerCase:SetTexture(db.PowerBarForegroundTexture)
-    powerCase:SetVertexColor(unpack(db.PowerBarForegroundColor))
 
     local cast = self.Castbar
     cast:ClearAllPoints()
@@ -441,6 +441,16 @@ local UnitFrame_UpdateTextures = function(self)
     cast:SetStatusBarColor(unpack(db.HealthCastOverlayColor))
     cast:SetOrientation(db.HealthBarOrientation)
     cast:SetSparkMap(db.HealthBarSparkMap)
+    local threat = self.ThreatIndicator
+    if (threat) then
+        for key, texture in next, threat.textures do
+            print("Updating ThreatIndicator texture:", key)
+            texture:ClearAllPoints()
+            texture:SetPoint(unpack(db[key .. "ThreatPosition"]))
+            texture:SetSize(unpack(db[key .. "ThreatSize"]))
+            texture:SetTexture(db[key .. "ThreatTexture"])
+        end
+    end
 end
 
 -- Frame Script Handlers
@@ -532,7 +542,7 @@ UnitStyles["Player"] = function(self, unit, id)
     --------------------------------------------
     local castText = healthOverlay:CreateFontString(nil, "OVERLAY", nil, 1)
     castText:SetPoint(unpack(db.HealthValuePosition))
-    castText:SetFontObject(db.HealthValueFont)
+    castText:SetFontObject(db.CastBarTextFont)
     castText:SetTextColor(unpack(db.CastBarTextColor))
     castText:SetJustifyH(db.HealthValueJustifyH)
     castText:SetJustifyV(db.HealthValueJustifyV)
@@ -682,6 +692,40 @@ UnitStyles["Player"] = function(self, unit, id)
     self.PvPIndicator = PvPIndicator
     self.PvPIndicator.Override = PvPIndicator_Override
 
+    -- Threat Indicator
+    --------------------------------------------
+    local threatIndicator = CreateFrame("Frame", nil, self)
+    threatIndicator:SetFrameLevel(self:GetFrameLevel())
+    threatIndicator:SetFrameStrata("BACKGROUND")
+    threatIndicator:SetAllPoints()
+
+    threatIndicator.textures = {
+        Health = threatIndicator:CreateTexture(nil, "BACKGROUND", nil, -3),
+        PowerBar = power:CreateTexture(nil, "BACKGROUND", nil, -3),
+        PowerBackdrop = power:CreateTexture(nil, "ARTWORK", nil, 1),
+        ManaOrb = mana:CreateTexture(nil, "BACKGROUND", nil, -3),
+    }
+    threatIndicator.Show = function(self)
+        self.isShown = true
+        for key, texture in next, self.textures do
+            texture:Show()
+        end
+    end
+    threatIndicator.Hide = function(self)
+        self.isShown = nil
+        for key, texture in next, self.textures do
+            texture:Hide()
+        end
+    end
+    threatIndicator.PostUpdate = function(self, unit, status, r, g, b)
+        if (self.isShown) then
+            for key, texture in next, self.textures do
+                texture:SetVertexColor(r, g, b)
+            end
+        end
+    end
+
+    self.ThreatIndicator = threatIndicator
     -- Auras
     --------------------------------------------
     local auras = CreateFrame("Frame", "PlayerAuras", self)
