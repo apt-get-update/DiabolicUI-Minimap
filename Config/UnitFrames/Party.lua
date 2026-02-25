@@ -1,8 +1,8 @@
---[[
+	--[[
 
 	The MIT License (MIT)
 
-	Copyright (c) 2023 Lars Norberg
+	Copyright (c) 2024 Lars Norberg
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -47,26 +47,29 @@ local barSparkMap = {
 	}
 }
 
+local Scale = 1.58;
 Config.Party = {
 
 	-- Header Position & Layut
 	-----------------------------------------
-	Position = { "TOPLEFT", UIParent, "TOPLEFT", 50, -42 }, -- party header position
-	Size = { 130 * 4, 130 },                             -- size of the entire header frame area
+	Position = { "TOPLEFT", UIParent, "TOPLEFT", 74, -60 }, -- party header position
+	Size = { 160 * 4, 140 },                             -- size of the entire header frame area
 	Anchor = "LEFT",                                     -- party member frame anchor
-	GrowthX = 0,                                         -- party member horizontal offset
+	GrowthX = 60,                                        -- party member horizontal offset
 	GrowthY = 0,                                         -- party member vertical offset
 	Sorting = "INDEX",                                   -- sort method
 	SortDirection = "ASC",                               -- sort direction
 
-	PartySize = { 130, 130 },                            -- party member size
+	PartySize = { 160, 180 },                            -- party member size
 	PartyHitRectInsets = { 0, 0, 0, -10 },               -- party member mouseover hit box
 	OutOfRangeAlpha = .6,                                -- Alpha of out of range party members
+
+	
 
 	-- Health
 	-----------------------------------------
 	HealthBarPosition = { "BOTTOM", 0, 0 },
-	HealthBarSize = { 80, 14 },
+	HealthBarSize = { 80 * Scale, 14 * Scale },
 	HealthBarTexture = GetMedia("cast_bar"),
 	HealthBarOrientation = "RIGHT",
 	HealthBarSparkMap = barSparkMap,
@@ -74,48 +77,48 @@ Config.Party = {
 	HealthCastOverlayColor = { 1, 1, 1, .5 },
 
 	HealthBackdropPosition = { "CENTER", 1, -2 },
-	HealthBackdropSize = { 140, 90 },
+	HealthBackdropSize = { 140 * Scale, 90 * Scale },
 	HealthBackdropTexture = GetMedia("cast_back"),
 	HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
 	HealthValuePosition = { "CENTER", 0, 0 },
 	HealthValueJustifyH = "CENTER",
 	HealthValueJustifyV = "MIDDLE",
-	HealthValueFont = GetFont(13, true),
+	HealthValueFont = GetFont(13 * Scale, true),
 	HealthValueColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .75 },
 
 	-- Power
 	-----------------------------------------
-	PowerBarSize = { 72, 1 },
+	PowerBarSize = { 72 * Scale, 1 * Scale },
 	PowerBarPosition = { "BOTTOM", 0, -1.5 },
 	PowerBarTexture = [[Interface\ChatFrame\ChatFrameBackground]],
 	PowerBarOrientation = "RIGHT",
-	PowerBackdropSize = { 74, 3 },
+	PowerBackdropSize = { 74 * Scale, 3 * Scale },
 	PowerBackdropPosition = { "CENTER", 0, 0 },
 	PowerBackdropTexture = [[Interface\ChatFrame\ChatFrameBackground]],
 	PowerBackdropColor = { 0, 0, 0, .75 },
 
 	-- Portrait
 	-----------------------------------------
-	PortraitPosition = { "BOTTOM", 0, 22 },
-	PortraitSize = { 70, 73 },
+	PortraitPosition = { "BOTTOM", 0, 22 * Scale },
+	PortraitSize = { 70 * Scale, 73 * Scale },
 	PortraitAlpha = .85,
-	PortraitBackgroundPosition = { "BOTTOM", 0, -6 },
-	PortraitBackgroundSize = { 130, 130 },
+	PortraitBackgroundPosition = { "BOTTOM", 0, -6 * Scale },
+	PortraitBackgroundSize = { 130 * Scale, 130 * Scale },
 	PortraitBackgroundTexture = GetMedia("party_portrait_back"),
 	PortraitBackgroundColor = { .5, .5, .5 },
-	PortraitShadePosition = { "BOTTOM", 0, 16 },
-	PortraitShadeSize = { 86, 86 },
+	PortraitShadePosition = { "BOTTOM", 0, 16 * Scale },
+	PortraitShadeSize = { 86 * Scale, 86 * Scale },
 	PortraitShadeTexture = GetMedia("shade-circle"),
-	PortraitBorderPosition = { "BOTTOM", 0, -38 },
-	PortraitBorderSize = { 194, 194 },
+	PortraitBorderPosition = { "BOTTOM", 0, -38 * Scale },
+	PortraitBorderSize = { 194 * Scale, 194 * Scale },
 	PortraitBorderTexture = GetMedia("party_portrait_border"),
 	PortraitBorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
 	-- Target Highlight Outline
 	-----------------------------------------
 	TargetHighlightPosition = { "CENTER", 1, -2 },
-	TargetHighlightSize = { 140, 90 },
+	TargetHighlightSize = { 140 * Scale, 90 * Scale },
 	TargetHighlightTexture = GetMedia("cast_back_outline"),
 	TargetHighlightTargetColor = { 255 / 255, 239 / 255, 169 / 255, 1 },
 	TargetHighlightFocusColor = { 144 / 255, 195 / 255, 255 / 255, 1 },
@@ -132,7 +135,7 @@ Config.Party = {
 	-----------------------------------------
 	ResurrectIndicatorPosition = { "CENTER", 0, -7 },
 	ResurrectIndicatorSize = { 32, 32 },
-	ResurrectIndicatorTexture = [[Interface\Icons\Spell_Holy_Resurrection]],
+	ResurrectIndicatorTexture = [[Interface\RaidFrame\Raid-Icon-Rez]],
 
 	-- Group Role
 	-----------------------------------------
@@ -175,5 +178,4 @@ Config.Party = {
 	AurasTooltipAnchor = "ANCHOR_TOPLEFT",
 	AurasSortMethod = "TIME_REMAINING",
 	AurasSortDirection = "DESCENDING",
-
 }

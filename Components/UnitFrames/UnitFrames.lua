@@ -90,7 +90,6 @@ local UnitSpecific = function(self, unit)
     local id, style
     if (unit == "player") then
         style = self:GetName():find("HUD") and "PlayerHUD" or "Player"
-
         if (self:GetName():find("Boss")) then
             style = "Boss"
         end
@@ -212,17 +211,10 @@ UnitFrames.RegisterStyles = function(self)
         self.colors = ns.Colors
 
         self:RegisterForClicks("AnyUp")
+        -- add a reddish beckground to all unit frames for debugging purposes
+
+
         self:SetAttribute("unit", unit)
-        self:SetScript("OnMouseUp", function(self, button)
-            if button == "RightButton" and self.unit then
-                local unit = self.unit
-                local dropdownName = unit:sub(1,1):upper()..unit:sub(2).."FrameDropDown"
-                local dropdown = _G[dropdownName]
-                if dropdown then
-                    ToggleDropDownMenu(1, nil, dropdown, "cursor")
-                end
-            end
-        end)
         self:SetScript("OnEnter", OnEnter)
         self:SetScript("OnLeave", OnLeave)
         self:SetScript("OnHide", OnHide)
@@ -310,16 +302,15 @@ UnitFrames.SpawnGroupFrames = function(self)
         oUF:SetActiveStyle(ns.Prefix)
 
         local party = SetObjectScale(oUF:SpawnHeader(self:GetPartyAttributes()))
-
         -- The secure groupheader can have its points cleared when empty,
         -- so we need a fake anchor to avoid it bugging out.
         local config = ns.Config.Party
         local anchor = SetObjectScale(CreateFrame("Frame", nil, UIParent))
         anchor:SetPoint(unpack(config.Position))
         anchor:SetSize(unpack(config.Size))
-
-        -- Initial positioning
+        -- Initial positioningloc
         party:SetPoint(config.Anchor, anchor, config.Anchor)
+       
     end)
 end
 

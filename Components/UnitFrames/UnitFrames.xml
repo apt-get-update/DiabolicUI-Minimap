@@ -10,4 +10,5 @@
 
 	<Script file="Units\Player.lua"/>
 	<Script file="Units\Target.lua"/>
+	<Script file="Units\Party.lua"/>
 </Ui>
