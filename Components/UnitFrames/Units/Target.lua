@@ -18,8 +18,9 @@ local IsLevelAtEffectiveMaxLevel = function(level)
     return level >= 80
 end
 
+local hardenedLevel = 30
+
 -- Constants
-local playerLevel = UnitLevel("target")
 local defaults = {
     showAuras = true,
     showCastbar = true,
@@ -100,9 +101,10 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
         local _, max = preview:GetMinMaxValues()
         local value = preview:GetValue() / max
         local previewTexture = preview:GetStatusBarTexture()
-        local key = (playerXPDisabled or playerLevel >= 80) and "Seasoned" or playerLevel < hardenedLevel and "Novice" or
+        local level = UnitLevel("target")
+        local key = (playerXPDisabled or level >= 80) and "Seasoned" or level < hardenedLevel and "Novice" or
             "Hardened"
-        local db = ns.Config.Player[key]
+        local db = ns.Config.Target[key]
         local previewWidth, previewHeight = unpack(db.HealthBarSize)
 
         local left, right, top, bottom = preview:GetTexCoord()
@@ -643,12 +645,8 @@ local UnitFrame_PostUpdate = function(self)
 end
 
 local UnitFrame_OnEvent = function(self, event, unit, ...)
-    if (event == "PLAYER_ENTERING_WORLD") then
-        playerLevel = UnitLevel("player")
-    elseif (event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED") then
+    if (event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED") then
         self.Auras:ForceUpdate()
-    elseif (event == "PLAYER_LEVEL_UP") then
-        playerLevel = UnitLevel("player")
     end
     UnitFrame_PostUpdate(self)
 end
@@ -687,7 +685,6 @@ UnitStyles["Target"] = function(self, unit, id)
     self.Health.PostUpdateColor = Health_PostUpdateColor
 
     local healthBackdrop = self:CreateTexture(nil, "BACKGROUND", nil, -1)
-
     self.Health.Backdrop = healthBackdrop
 
     local healthOverlay = CreateFrame("Frame", nil, health)
@@ -984,7 +981,7 @@ UnitStyles["Target"] = function(self, unit, id)
     auras.disableCooldown = db.AurasDisableCooldown
     auras.onlyShowPlayer = db.AurasOnlyShowPlayer
     auras.showStealableBuffs = db.AurasShowStealableBuffs
-    auras.showBuffType = false
+    auras.showBuffType = true
     auras.showDebuffType = true
     auras.initialAnchor = db.AurasInitialAnchor
     auras["spacing-x"] = db.AurasSpacingX
