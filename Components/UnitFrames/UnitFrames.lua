@@ -13,6 +13,7 @@ ns.UnitFramesByName = {}
 local string_format = string.format
 local string_match = string.match
 local table_insert = table.insert
+local table_concat = table.concat
 local table_remove = table.remove
 
 -- WoW API
@@ -182,10 +183,20 @@ local ForceUpdate = function(self)
     self:UpdateAllElements("ForceUpdate")
 end
 
+
 UnitFrames.GetPartyAttributes = function(self)
     local db = ns.Config.Party
+    local driver = {}
+    table_insert(driver, "custom [group:party,nogroup:raid] " .. (db.useInParties and "show" or "hide"))
+    table_insert(driver, "[@raid26,exists] " .. (db.useInRaid40 and "show" or "hide"))
+    table_insert(driver, "[@raid11,exists] " .. (db.useInRaid25 and "show" or "hide"))
+    table_insert(driver, "[@raid6,exists] " .. (db.useInRaid10 and "show" or "hide"))
+    table_insert(driver, "[group:raid] " .. (db.useInRaid5 and "show" or "hide"))
+    table_insert(driver, "hide")
+    table_concat(driver, ";")
+    local driverString = table_concat(driver, ";")
     return ns.Prefix .. "Party", nil,
-        "party",
+        driverString,
         --"solo,party", "showPlayer", true, "showSolo", true,
         "oUF-initialConfigFunction", [[
 		local header = self:GetParent();
@@ -196,6 +207,8 @@ UnitFrames.GetPartyAttributes = function(self)
         "initial-width", db.PartySize[1],
         "initial-height", db.PartySize[2],
         "showParty", true,
+        "showSolo", true,
+        "showPlayer", true,
         "point", db.Anchor,
         "xOffset", db.GrowthX,
         "yOffset", db.GrowthY,

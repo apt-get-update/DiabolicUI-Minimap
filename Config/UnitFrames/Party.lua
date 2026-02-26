@@ -49,14 +49,34 @@ local barSparkMap = {
 
 local Scale = 1.58;
 Config.Party = {
-
+	-- General
+	enabled = true,
+	useInParties = true, -- show in non-raid parties
+	useInRaid5 = true, -- show in raid groups of 1-5 players
+	useInRaid10 = false, -- show in raid groups of 6-10 players
+	useInRaid25 = false, -- show in raid groups of 11-25 players
+	useInRaid40 = false, -- show in raid groups of 26-40 players
+	showAuras = true,
+	showPlayer = true,
+	point = "LEFT",                     -- anchor point of unitframe, group members within column grow opposite
+	xOffset = 0,                        -- horizontal offset within the same column
+	yOffset = 0,                        -- vertical offset within the same column
+	groupBy = "ROLE",                   -- GROUP, CLASS, ROLE
+	groupingOrder = "TANK,HEALER,DAMAGER", -- must match choice in groupBy
+	unitsPerColumn = 5,                 -- maximum units per column
+	maxColumns = 1,                     -- should be 5/unitsPerColumn
+	columnSpacing = 0,                  -- spacing between columns
+	columnAnchorPoint = "TOP",          -- anchor point of column, columns grow opposite
 	-- Header Position & Layut
 	-----------------------------------------
 	Position = { "TOPLEFT", UIParent, "TOPLEFT", 74, -60 }, -- party header position
 	Size = { 160 * 4, 140 },                             -- size of the entire header frame area
-	Anchor = "LEFT",                                     -- party member frame anchor
+	-- Anchor = "TOP",                                      -- party member frame anchor vertically
+	Anchor = "LEFT",                                     -- party member frame anchor horizontally
 	GrowthX = 60,                                        -- party member horizontal offset
+	-- GrowthX = 0,                        -- party member horizontal offset
 	GrowthY = 0,                                         -- party member vertical offset
+	-- GrowthY = -60,                      -- party member vertical offset
 	Sorting = "INDEX",                                   -- sort method
 	SortDirection = "ASC",                               -- sort direction
 
@@ -126,7 +146,7 @@ Config.Party = {
 	-- Ready Check
 	-----------------------------------------
 	ReadyCheckPosition = { "CENTER", 0, -7 },
-	ReadyCheckSize = { 32, 32 },
+	ReadyCheckSize = { 32 * Scale, 32 * Scale },
 	ReadyCheckReadyTexture = [[Interface/RAIDFRAME/ReadyCheck-Ready]],
 	ReadyCheckNotReadyTexture = [[Interface/RAIDFRAME/ReadyCheck-NotReady]],
 	ReadyCheckWaitingTexture = [[Interface/RAIDFRAME/ReadyCheck-Waiting]],
@@ -134,19 +154,19 @@ Config.Party = {
 	-- Resurrection Indicator
 	-----------------------------------------
 	ResurrectIndicatorPosition = { "CENTER", 0, -7 },
-	ResurrectIndicatorSize = { 32, 32 },
+	ResurrectIndicatorSize = { 32 * Scale, 32 * Scale },
 	ResurrectIndicatorTexture = [[Interface\RaidFrame\Raid-Icon-Rez]],
 
 	-- Group Role
 	-----------------------------------------
-	GroupRolePosition = { "TOP", 0, 0 },
-	GroupRoleSize = { 40, 40 },
+	GroupRolePosition = { "TOP", 0, 16 },
+	GroupRoleSize = { 40 * Scale, 40 * Scale },
 	GroupRoleBackdropPosition = { "CENTER", 0, 0 },
-	GroupRoleBackdropSize = { 77, 77 },
+	GroupRoleBackdropSize = { 77 * Scale, 77 * Scale },
 	GroupRoleBackdropTexture = GetMedia("point_plate"),
 	GroupRoleBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 	GroupRoleIconPositon = { "CENTER", 0, 0 },
-	GroupRoleIconSize = { 34, 34 },
+	GroupRoleIconSize = { 34 * Scale, 34 * Scale },
 	GroupRoleDPSTexture = GetMedia("grouprole-icons-dps"),
 	GroupRoleHealerTexture = GetMedia("grouprole-icons-heal"),
 	GroupRoleTankTexture = GetMedia("grouprole-icons-tank"),
@@ -155,10 +175,17 @@ Config.Party = {
 	-----------------------------------------
 	CombatFeedbackAnchorElement = "Portrait",
 	CombatFeedbackPosition = { "CENTER", 0, 0 },
-	CombatFeedbackFont = GetFont(20, true),   -- standard font
-	CombatFeedbackFontLarge = GetFont(24, true), -- crit/drushing font
-	CombatFeedbackFontSmall = GetFont(18, true), -- glancing blow font
+	CombatFeedbackFont = GetFont(20 * Scale, true),   -- standard font
+	CombatFeedbackFontLarge = GetFont(24 * Scale, true), -- crit/drushing font
+	CombatFeedbackFontSmall = GetFont(18 * Scale, true), -- glancing blow font
 
+	-- Unit Name
+	NamePosition = { "TOP", 0, 40 },
+	NameSize = { 250, 18 },
+	NameJustifyH = "CENTER",
+	NameJustifyV = "TOP",
+	NameFont = GetFont(16, true),
+	NameColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .75 },
 	-- Auras
 	-----------------------------------------
 	AurasPosition = { "BOTTOM", 0, -(34 * 2 + 22) },

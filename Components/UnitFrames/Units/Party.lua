@@ -58,7 +58,7 @@ local defaults = {
     useInRaid25 = false, -- show in raid groups of 11-25 players
     useInRaid40 = false, -- show in raid groups of 26-40 players
     showAuras = true,
-    showPlayer = false,
+    showPlayer = true,
     point = "LEFT",                        -- anchor point of unitframe, group members within column grow opposite
     xOffset = 0,                           -- horizontal offset within the same column
     yOffset = 0,                           -- vertical offset within the same column
@@ -250,14 +250,14 @@ local GroupRoleIndicator_Override = function(self, event)
     end
 
     local isTank, isHealer, isDPS = UnitGroupRolesAssigned(self.unit)
-    if (isTank and element["TANK"]) then
+    if (true and element["TANK"]) then
         element.Icon:SetTexture(element["TANK"])
     elseif (isHealer and element["HEALER"]) then
         element.Icon:SetTexture(element["HEALER"])
     elseif (isDPS and element["DAMAGER"]) then
         element.Icon:SetTexture(element["DAMAGER"])
     end
-    if isTank or isHealer or isDPS then
+    if true or isHealer or isDPS then
         element:Show()
     else
         element:Hide()
@@ -274,6 +274,86 @@ local GroupRoleIndicator_Override = function(self, event)
     end
 end
 
+local modelsToFix = {
+    ["3886641.m2"] = true,
+    ["4216711.m2"] = true,
+    ["4495214.m2"] = true,
+    ["4498203.m2"] = true,
+    ["4553742.m2"] = true,
+    ["ancientoflore.m2"] = true,
+    ["ancientoflore2.m2"] = true,
+    ["ancientofwar.m2"] = true,
+    ["ancientofwar2.m2"] = true,
+    ["batrider2.m2"] = true,
+    ["centaur2_female_caster.m2"] = true,
+    ["centaur2_male_hunter.m2"] = true,
+    ["centaur2_male_warrior.m2"] = true,
+    ["centaur2warrior_male.m2"] = true,
+    ["chicken.m2"] = true,
+    ["chimera.m2"] = true,
+    ["companionwyvern4.m2"] = true,
+    ["cryptfiend2caster.m2"] = true,
+    ["cryptfiend2warrior.m2"] = true,
+    ["draeneifemale2.m2"] = true,
+    ["dragonfootsoldier.m2"] = true,
+    ["dragonfootsoldier2.m2"] = true,
+    ["dragonfootsoldier3.m2"] = true,
+    ["dragonfootsoldier4.m2"] = true,
+    ["dragonfootsoldier6.m2"] = true,
+    ["dragonhawkmount.m2"] = true,
+    ["dragonspawn2_female.m2"] = true,
+    ["dragonspawnoverlord3.m2"] = true,
+    ["dragonspawnoverlord5.m2"] = true,
+    ["dragonspawnoverlord6.m2"] = true,
+    ["druidtravelcat.m2"] = true,
+    ["dwarfmalenpc.m2"] = true,
+    ["dwarf_guard.m2"] = true,
+    ["felbat.m2"] = true,
+    ["felorcmale.m2"] = true,
+    ["fleshtitan.m2"] = true,
+    ["gargoyle.m2"] = true,
+    ["gnoll2caster1.m2"] = true,
+    ["gnoll2warrior1.m2"] = true,
+    ["gnoll2warrior2.m2"] = true,
+    ["goblinshreddermount.m2"] = true,
+    ["greatwyrm.m2"] = true,
+    ["hogger.m2"] = true,
+    ["humanfemalekid.m2"] = true,
+    ["humanmalekid.m2"] = true,
+    ["hydraoutland.m2"] = true,
+    ["invisiblestalker.m2"] = true,
+    ["kelthuzadshadowlands.m2"] = true,
+    ["ladyalexstrasza.m2"] = true,
+    ["larva.m2"] = true,
+    ["larvaoutland.m2"] = true,
+    ["lich2.m2"] = true,
+    ["lynx2.m2"] = true,
+    ["madscientist2.m2"] = true,
+    ["maldraxxusskeleton.m2"] = true,
+    ["maldraxxusskeleton2.m2"] = true,
+    ["maldraxxusskeleton3.m2"] = true,
+    ["manaray.m2"] = true,
+    ["manaraymount.m2"] = true,
+    ["mawguardcasterspikes.m2"] = true,
+    ["mawinquisitorboss.m2"] = true,
+    ["mechagonspidertank.m2"] = true,
+    ["missilerocketmount.m2"] = true,
+    ["nerubian2.m2"] = true,
+    ["northrendbearmountarmored.m2"] = true,
+    ["northrendundeaddrake.m2"] = true,
+    ["orcmalenpc.m2"] = true,
+    ["rat.m2"] = true,
+    ["sabertoothprimal.m2"] = true,
+    ["scourgefemalenpc.m2"] = true,
+    ["scourgemalenpc.m2"] = true,
+    ["skeletonmale.m2"] = true,
+    ["skeletonmale2.m2"] = true,
+    ["snakeloa.m2"] = true,
+    ["squirrel.m2"] = true,
+    ["stonegolemearthen.m2"] = true,
+    ["treeoflife.m2"] = true,
+    ["woolyrhino.m2"] = true,
+}
 -- Make the portrait look better for offline or invisible units.
 local Portrait_PostUpdate = function(element, unit, hasStateChanged)
     if (not element.state) then
@@ -289,6 +369,16 @@ local Portrait_PostUpdate = function(element, unit, hasStateChanged)
     else
         if (element.fallback2DTexture) then
             element.fallback2DTexture:Hide()
+        end
+        -- HD Model camera fix
+        if element:IsObjectType("PlayerModel") then
+            local model = element:GetModel()
+            if type(model) == "string" then
+                model = model:lower():match("([^\\]+)$") -- get file name only
+                if modelsToFix[model] then
+                    element:SetCamera(1)
+                end
+            end
         end
         element.guid = guid
     end
@@ -568,6 +658,17 @@ UnitStyles["Party"] = function(self, unit, id)
 
     self.TargetHighlight = targetHighlight
 
+    -- Unit Name
+    --------------------------------------------
+    local name = self:CreateFontString(nil, "OVERLAY", nil, 1)
+    name:SetPoint(unpack(db.NamePosition))
+    name:SetFontObject(db.NameFont)
+    name:SetTextColor(unpack(db.NameColor))
+    name:SetJustifyH(db.NameJustifyH)
+    name:SetJustifyV(db.NameJustifyV)
+    name.tag = prefix("[*:Name(11,true,nil,true)]")
+    self:Tag(name, name.tag)
+    self.Name = name
     -- Auras
     --------------------------------------------
     local auras = CreateFrame("Frame", "PartyAuras", self)
