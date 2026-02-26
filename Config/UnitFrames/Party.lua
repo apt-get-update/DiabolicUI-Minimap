@@ -1,4 +1,4 @@
-	--[[
+--[[
 
 	The MIT License (MIT)
 
@@ -24,8 +24,6 @@
 
 --]]
 local Addon, ns = ...
-local Config = ns.Config or {}
-ns.Config = Config
 
 -- Addon API
 local Colors = ns.Colors
@@ -47,49 +45,18 @@ local barSparkMap = {
 	}
 }
 
-local Scale = 1.58;
-Config.Party = {
-	-- General
-	enabled = true,
-	useInParties = true, -- show in non-raid parties
-	useInRaid5 = true, -- show in raid groups of 1-5 players
-	useInRaid10 = false, -- show in raid groups of 6-10 players
-	useInRaid25 = false, -- show in raid groups of 11-25 players
-	useInRaid40 = false, -- show in raid groups of 26-40 players
-	showAuras = true,
-	showPlayer = true,
-	point = "LEFT",                     -- anchor point of unitframe, group members within column grow opposite
-	xOffset = 0,                        -- horizontal offset within the same column
-	yOffset = 0,                        -- vertical offset within the same column
-	groupBy = "ROLE",                   -- GROUP, CLASS, ROLE
-	groupingOrder = "TANK,HEALER,DAMAGER", -- must match choice in groupBy
-	unitsPerColumn = 5,                 -- maximum units per column
-	maxColumns = 1,                     -- should be 5/unitsPerColumn
-	columnSpacing = 0,                  -- spacing between columns
-	columnAnchorPoint = "TOP",          -- anchor point of column, columns grow opposite
+ns.RegisterConfig("PartyFrames", {
 	-- Header Position & Layut
 	-----------------------------------------
-	Position = { "TOPLEFT", UIParent, "TOPLEFT", 74, -60 }, -- party header position
-	Size = { 160 * 4, 140 },                             -- size of the entire header frame area
-	-- Anchor = "TOP",                                      -- party member frame anchor vertically
-	Anchor = "LEFT",                                     -- party member frame anchor horizontally
-	GrowthX = 60,                                        -- party member horizontal offset
-	-- GrowthX = 0,                        -- party member horizontal offset
-	GrowthY = 0,                                         -- party member vertical offset
-	-- GrowthY = -60,                      -- party member vertical offset
-	Sorting = "INDEX",                                   -- sort method
-	SortDirection = "ASC",                               -- sort direction
-
-	PartySize = { 160, 180 },                            -- party member size
-	PartyHitRectInsets = { 0, 0, 0, -10 },               -- party member mouseover hit box
+	Position = { "TOPLEFT", UIParent, "TOPLEFT", 50, -42 }, -- party header position
+	Size = { 130 * 5, 130 },                             -- size of the entire header frame area
+	UnitSize = { 130, 140 },                             -- party member size
 	OutOfRangeAlpha = .6,                                -- Alpha of out of range party members
-
-	
 
 	-- Health
 	-----------------------------------------
-	HealthBarPosition = { "BOTTOM", 0, 0 },
-	HealthBarSize = { 80 * Scale, 14 * Scale },
+	HealthBarPosition = { "BOTTOM", 0, 10 },
+	HealthBarSize = { 80, 14 },
 	HealthBarTexture = GetMedia("cast_bar"),
 	HealthBarOrientation = "RIGHT",
 	HealthBarSparkMap = barSparkMap,
@@ -97,76 +64,76 @@ Config.Party = {
 	HealthCastOverlayColor = { 1, 1, 1, .5 },
 
 	HealthBackdropPosition = { "CENTER", 1, -2 },
-	HealthBackdropSize = { 140 * Scale, 90 * Scale },
+	HealthBackdropSize = { 140, 90 },
 	HealthBackdropTexture = GetMedia("cast_back"),
 	HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
 	HealthValuePosition = { "CENTER", 0, 0 },
 	HealthValueJustifyH = "CENTER",
 	HealthValueJustifyV = "MIDDLE",
-	HealthValueFont = GetFont(13 * Scale, true),
+	HealthValueFont = GetFont(13, true),
 	HealthValueColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .75 },
 
 	-- Power
 	-----------------------------------------
-	PowerBarSize = { 72 * Scale, 1 * Scale },
-	PowerBarPosition = { "BOTTOM", 0, -1.5 },
+	PowerBarSize = { 72, 1 },
+	PowerBarPosition = { "BOTTOM", 0, -1.5 + 10 },
 	PowerBarTexture = [[Interface\ChatFrame\ChatFrameBackground]],
 	PowerBarOrientation = "RIGHT",
-	PowerBackdropSize = { 74 * Scale, 3 * Scale },
+	PowerBackdropSize = { 74, 3 },
 	PowerBackdropPosition = { "CENTER", 0, 0 },
 	PowerBackdropTexture = [[Interface\ChatFrame\ChatFrameBackground]],
 	PowerBackdropColor = { 0, 0, 0, .75 },
 
 	-- Portrait
 	-----------------------------------------
-	PortraitPosition = { "BOTTOM", 0, 22 * Scale },
-	PortraitSize = { 70 * Scale, 73 * Scale },
+	PortraitPosition = { "BOTTOM", 0, 22 + 10 },
+	PortraitSize = { 70, 73 },
 	PortraitAlpha = .85,
-	PortraitBackgroundPosition = { "BOTTOM", 0, -6 * Scale },
-	PortraitBackgroundSize = { 130 * Scale, 130 * Scale },
+	PortraitBackgroundPosition = { "BOTTOM", 0, -6 },
+	PortraitBackgroundSize = { 130, 130 },
 	PortraitBackgroundTexture = GetMedia("party_portrait_back"),
 	PortraitBackgroundColor = { .5, .5, .5 },
-	PortraitShadePosition = { "BOTTOM", 0, 16 * Scale },
-	PortraitShadeSize = { 86 * Scale, 86 * Scale },
+	PortraitShadePosition = { "BOTTOM", 0, 16 },
+	PortraitShadeSize = { 86, 86 },
 	PortraitShadeTexture = GetMedia("shade-circle"),
-	PortraitBorderPosition = { "BOTTOM", 0, -38 * Scale },
-	PortraitBorderSize = { 194 * Scale, 194 * Scale },
+	PortraitBorderPosition = { "BOTTOM", 0, -38 },
+	PortraitBorderSize = { 194, 194 },
 	PortraitBorderTexture = GetMedia("party_portrait_border"),
 	PortraitBorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
 	-- Target Highlight Outline
 	-----------------------------------------
 	TargetHighlightPosition = { "CENTER", 1, -2 },
-	TargetHighlightSize = { 140 * Scale, 90 * Scale },
+	TargetHighlightSize = { 140, 90 },
 	TargetHighlightTexture = GetMedia("cast_back_outline"),
 	TargetHighlightTargetColor = { 255 / 255, 239 / 255, 169 / 255, 1 },
 	TargetHighlightFocusColor = { 144 / 255, 195 / 255, 255 / 255, 1 },
 
 	-- Ready Check
 	-----------------------------------------
-	ReadyCheckPosition = { "CENTER", 0, -7 },
-	ReadyCheckSize = { 32 * Scale, 32 * Scale },
+	ReadyCheckPosition = { "CENTER", 0, -7 + 10 },
+	ReadyCheckSize = { 32, 32 },
 	ReadyCheckReadyTexture = [[Interface/RAIDFRAME/ReadyCheck-Ready]],
 	ReadyCheckNotReadyTexture = [[Interface/RAIDFRAME/ReadyCheck-NotReady]],
 	ReadyCheckWaitingTexture = [[Interface/RAIDFRAME/ReadyCheck-Waiting]],
 
 	-- Resurrection Indicator
 	-----------------------------------------
-	ResurrectIndicatorPosition = { "CENTER", 0, -7 },
-	ResurrectIndicatorSize = { 32 * Scale, 32 * Scale },
+	ResurrectIndicatorPosition = { "CENTER", 0, -7 + 10 },
+	ResurrectIndicatorSize = { 32, 32 },
 	ResurrectIndicatorTexture = [[Interface\RaidFrame\Raid-Icon-Rez]],
 
 	-- Group Role
 	-----------------------------------------
-	GroupRolePosition = { "TOP", 0, 16 },
-	GroupRoleSize = { 40 * Scale, 40 * Scale },
+	GroupRolePosition = { "TOP", 0, 0 },
+	GroupRoleSize = { 40, 40 },
 	GroupRoleBackdropPosition = { "CENTER", 0, 0 },
-	GroupRoleBackdropSize = { 77 * Scale, 77 * Scale },
+	GroupRoleBackdropSize = { 77, 77 },
 	GroupRoleBackdropTexture = GetMedia("point_plate"),
 	GroupRoleBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 	GroupRoleIconPositon = { "CENTER", 0, 0 },
-	GroupRoleIconSize = { 34 * Scale, 34 * Scale },
+	GroupRoleIconSize = { 34, 34 },
 	GroupRoleDPSTexture = GetMedia("grouprole-icons-dps"),
 	GroupRoleHealerTexture = GetMedia("grouprole-icons-heal"),
 	GroupRoleTankTexture = GetMedia("grouprole-icons-tank"),
@@ -175,12 +142,13 @@ Config.Party = {
 	-----------------------------------------
 	CombatFeedbackAnchorElement = "Portrait",
 	CombatFeedbackPosition = { "CENTER", 0, 0 },
-	CombatFeedbackFont = GetFont(20 * Scale, true),   -- standard font
-	CombatFeedbackFontLarge = GetFont(24 * Scale, true), -- crit/drushing font
-	CombatFeedbackFontSmall = GetFont(18 * Scale, true), -- glancing blow font
+	CombatFeedbackFont = GetFont(20, true),   -- standard font
+	CombatFeedbackFontLarge = GetFont(24, true), -- crit/drushing font
+	CombatFeedbackFontSmall = GetFont(18, true), -- glancing blow font
 
 	-- Unit Name
-	NamePosition = { "TOP", 0, 40 },
+	NamePosition = { "TOP", 0, 20 },
+	NamePositionNoRole = { "TOP", 0, 0 },
 	NameSize = { 250, 18 },
 	NameJustifyH = "CENTER",
 	NameJustifyV = "TOP",
@@ -188,7 +156,7 @@ Config.Party = {
 	NameColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .75 },
 	-- Auras
 	-----------------------------------------
-	AurasPosition = { "BOTTOM", 0, -(34 * 2 + 22) },
+	AurasPosition = { "BOTTOM", 0, -(34 * 2 + 22) + 10 },
 	AurasSize = { 34 * 3 - 4, 34 * 2 - 4 },
 	AuraSize = 30,
 	AuraSpacing = 4,
@@ -204,5 +172,5 @@ Config.Party = {
 	AurasGrowthY = "DOWN",
 	AurasTooltipAnchor = "ANCHOR_TOPLEFT",
 	AurasSortMethod = "TIME_REMAINING",
-	AurasSortDirection = "DESCENDING",
-}
+	AurasSortDirection = "DESCENDING"
+})

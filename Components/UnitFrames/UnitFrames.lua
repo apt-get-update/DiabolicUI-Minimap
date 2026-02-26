@@ -183,39 +183,6 @@ local ForceUpdate = function(self)
     self:UpdateAllElements("ForceUpdate")
 end
 
-
-UnitFrames.GetPartyAttributes = function(self)
-    local db = ns.Config.Party
-    local driver = {}
-    table_insert(driver, "custom [group:party,nogroup:raid] " .. (db.useInParties and "show" or "hide"))
-    table_insert(driver, "[@raid26,exists] " .. (db.useInRaid40 and "show" or "hide"))
-    table_insert(driver, "[@raid11,exists] " .. (db.useInRaid25 and "show" or "hide"))
-    table_insert(driver, "[@raid6,exists] " .. (db.useInRaid10 and "show" or "hide"))
-    table_insert(driver, "[group:raid] " .. (db.useInRaid5 and "show" or "hide"))
-    table_insert(driver, "hide")
-    table_concat(driver, ";")
-    local driverString = table_concat(driver, ";")
-    return ns.Prefix .. "Party", nil,
-        driverString,
-        --"solo,party", "showPlayer", true, "showSolo", true,
-        "oUF-initialConfigFunction", [[
-		local header = self:GetParent();
-		self:SetWidth(header:GetAttribute("initial-width"));
-		self:SetHeight(header:GetAttribute("initial-height"));
-		self:SetFrameLevel(self:GetFrameLevel() + 10);
-	]],
-        "initial-width", db.PartySize[1],
-        "initial-height", db.PartySize[2],
-        "showParty", true,
-        "showSolo", true,
-        "showPlayer", true,
-        "point", db.Anchor,
-        "xOffset", db.GrowthX,
-        "yOffset", db.GrowthY,
-        "sortMethod", db.Sorting,
-        "sortDir", db.SortDirection
-end
-
 UnitFrames.RegisterStyles = function(self)
     oUF:RegisterStyle(ns.Prefix, function(self, unit)
         SetObjectScale(self)
@@ -310,22 +277,6 @@ UnitFrames.SpawnUnitFrames = function(self)
     end)
 end
 
-UnitFrames.SpawnGroupFrames = function(self)
-    oUF:Factory(function(oUF)
-        oUF:SetActiveStyle(ns.Prefix)
-
-        local party = SetObjectScale(oUF:SpawnHeader(self:GetPartyAttributes()))
-        -- The secure groupheader can have its points cleared when empty,
-        -- so we need a fake anchor to avoid it bugging out.
-        local config = ns.Config.Party
-        local anchor = SetObjectScale(CreateFrame("Frame", nil, UIParent))
-        anchor:SetPoint(unpack(config.Position))
-        anchor:SetSize(unpack(config.Size))
-        -- Initial positioningloc
-        party:SetPoint(config.Anchor, anchor, config.Anchor)
-       
-    end)
-end
 
 UnitFrames.UpdateSettings = function(self)
     if (InCombatLockdown()) then return end
@@ -421,7 +372,6 @@ UnitFrames.OnInitialize = function(self)
     self:RegisterMetaFunctions()
     self:RegisterStyles()
     self:SpawnUnitFrames()
-    self:SpawnGroupFrames()
     -- self:SpawnNamePlates()
 end
 
@@ -431,3 +381,17 @@ end
 --     self:RegisterEvent("UI_SCALE_CHANGED", "OnEvent")
 --     self:RegisterEvent("VARIABLES_LOADED", "OnEvent")
 -- end
+
+-- New Module Development
+ns.UnitFrame = {}
+ns.UnitFrame.defaults = { enabled = true, scale = 1 }
+
+ns.UnitFrame.InitializeUnitFrame = function(self)
+    self.isUnitFrame = true
+    self.colors = ns.Colors
+
+    self:RegisterForClicks("AnyUp")
+    self:SetScript("OnEnter", OnEnter)
+    self:SetScript("OnLeave", OnLeave)
+    self:SetScript("OnHide", OnHide)
+end

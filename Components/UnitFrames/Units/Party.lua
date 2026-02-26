@@ -23,33 +23,21 @@
 	SOFTWARE.
 
 --]]
-local Addon, ns = ...
+local _, ns = ...
 local UnitStyles = ns.UnitStyles
 local oUF = ns.oUF
 if (not UnitStyles) then return end
 
 -- Lua API
 local math_abs = math.abs
-local math_pi = math_pi
 local next = next
-local select = select
 local string_gsub = string.gsub
-local string_split = string.split
 local table_concat = table.concat
 local table_insert = table.insert
 local type = type
 local unpack = unpack
 
--- GLOBALS: InCombatLockdown, RegisterAttributeDriver, UnregisterAttributeDriver
--- GLOBALS: UnitGroupRolesAssigned, UnitGUID, UnitIsUnit, SetPortraitTexture
-
--- Addon API
-local Colors = ns.Colors
-local GetMedia = ns.API.GetMedia
-local GetFont = ns.API.GetFont
-
-local Units = {}
-
+-- Default Settings
 local defaults = {
     enabled = true,
     useInParties = true, -- show in non-raid parties
@@ -70,6 +58,14 @@ local defaults = {
     columnAnchorPoint = "TOP"              -- anchor point of column, columns grow opposite
 }
 
+local PartyFrameMod = ns:NewModule("PartyFrames", "LibMoreEvents-1.0", "AceHook-3.0")
+
+-- Addon API
+local Colors = ns.Colors
+local GetMedia = ns.API.GetMedia
+local GetFont = ns.API.GetFont
+
+local Units = {}
 -- Utility Functions
 --------------------------------------------
 -- Simplify the tagging process a little.
@@ -140,12 +136,10 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
         local _, max = preview:GetMinMaxValues()
         local value = preview:GetValue() / max
         local previewTexture = preview:GetStatusBarTexture()
-        local db = ns.Config.Party
-
+        local db = ns.GetConfig("PartyFrames")
         local previewWidth, previewHeight = unpack(db.HealthBarSize)
         local left, right, top, bottom = preview:GetTexCoord()
         local isFlipped = preview:IsFlippedHorizontally()
-
         if (growth == "RIGHT") then
             local texValue, texChange = value, change
             local rangeH
@@ -238,8 +232,9 @@ end
 
 -- Custom Group Role updater
 local GroupRoleIndicator_Override = function(self, event)
+    local config = ns.GetConfig("PartyFrames");
     local element = self.GroupRoleIndicator
-
+    local nameElement = self.Name;
     --[[ Callback: GroupRoleIndicator:PreUpdate()
 	Called before the element has been updated.
 
@@ -250,17 +245,19 @@ local GroupRoleIndicator_Override = function(self, event)
     end
 
     local isTank, isHealer, isDPS = UnitGroupRolesAssigned(self.unit)
-    if (true and element["TANK"]) then
+    if (isTank and element["TANK"]) then
         element.Icon:SetTexture(element["TANK"])
     elseif (isHealer and element["HEALER"]) then
         element.Icon:SetTexture(element["HEALER"])
     elseif (isDPS and element["DAMAGER"]) then
         element.Icon:SetTexture(element["DAMAGER"])
     end
-    if true or isHealer or isDPS then
+    if isTank or isHealer or isDPS then
         element:Show()
+        nameElement:SetPoint(unpack(config.NamePosition))
     else
         element:Hide()
+        nameElement:SetPoint(unpack(config.NamePositionNoRole))
     end
 
     --[[ Callback: GroupRoleIndicator:PostUpdate(role)
@@ -425,11 +422,13 @@ local OnEvent = function(self, event, unit, ...)
     UnitFrame_PostUpdate(self)
 end
 
-UnitStyles["Party"] = function(self, unit, id)
-    local db = ns.Config.Party
-    self:SetSize(unpack(db.PartySize))
-    self:SetHitRectInsets(unpack(db.PartyHitRectInsets))
-    self:SetFrameLevel(self:GetFrameLevel() + 10)
+local style = function(self, unit)
+    local db = ns.GetConfig("PartyFrames")
+    ---- Apply common scripts and member values.
+    ns.UnitFrame.InitializeUnitFrame(self)
+    ns.UnitFrames[self] = true -- add to global registry
+    Units[self] = true         -- add to local registry
+    self:SetSize(unpack(db.UnitSize))
     -- Overlay for icons and text
     --------------------------------------------
     local overlay = CreateFrame("Frame", nil, self)
@@ -478,6 +477,7 @@ UnitStyles["Party"] = function(self, unit, id)
     healthPreview:SetFrameLevel(health:GetFrameLevel() - 1)
     healthPreview:SetStatusBarTexture(db.HealthBarTexture)
     healthPreview:SetOrientation(db.HealthBarOrientation)
+    healthPreview:SetSize(unpack(db.HealthBarSize))
     healthPreview:SetSparkTexture("")
     healthPreview:SetAlpha(.5)
     healthPreview:DisableSmoothing(true)
@@ -518,7 +518,7 @@ UnitStyles["Party"] = function(self, unit, id)
     healthValue:SetTextColor(unpack(db.HealthValueColor))
     healthValue:SetJustifyH(db.HealthValueJustifyH)
     healthValue:SetJustifyV(db.HealthValueJustifyV)
-    self:Tag(healthValue, prefix("[*:Health(true, nil, nil, true)]"))
+    self:Tag(healthValue, prefix("[*:Health(true,false,false,true)]"))
 
     self.Health.Value = healthValue
 
@@ -604,7 +604,7 @@ UnitStyles["Party"] = function(self, unit, id)
     local resurrectIndicator = overlay:CreateTexture(nil, "OVERLAY", nil, 1)
     resurrectIndicator:SetSize(unpack(db.ResurrectIndicatorSize))
     resurrectIndicator:SetPoint(unpack(db.ResurrectIndicatorPosition))
-    resurrectIndicator:SetTexture(ResurrectIndicatorTexture)
+    resurrectIndicator:SetTexture(db.ResurrectIndicatorTexture)
 
     self.ResurrectIndicator = resurrectIndicator
 
@@ -646,7 +646,6 @@ UnitStyles["Party"] = function(self, unit, id)
     feedbackText.feedbackFontSmall = db.CombatFeedbackFontSmall
 
     self.CombatFeedback = feedbackText
-
     -- Target Highlight
     --------------------------------------------
     local targetHighlight = healthOverlay:CreateTexture(nil, "BACKGROUND", nil, -2)
@@ -666,9 +665,16 @@ UnitStyles["Party"] = function(self, unit, id)
     name:SetTextColor(unpack(db.NameColor))
     name:SetJustifyH(db.NameJustifyH)
     name:SetJustifyV(db.NameJustifyV)
-    name.tag = prefix("[*:Name(11,true,nil,true)]")
+    name.tag = prefix("[*:Name(10,true,nil,true)]")
     self:Tag(name, name.tag)
     self.Name = name
+    -- Leader Indicator
+    --------------------------------------------
+    local leaderIndicator = overlay:CreateTexture(nil, "OVERLAY", nil, 2)
+    leaderIndicator:SetSize(16, 16)
+    leaderIndicator:SetPoint("TOPLEFT", self.Health, "TOPLEFT", -4, 16)
+
+    self.LeaderIndicator = leaderIndicator
     -- Auras
     --------------------------------------------
     local auras = CreateFrame("Frame", "PartyAuras", self)
@@ -706,7 +712,7 @@ UnitStyles["Party"] = function(self, unit, id)
     }
 
     -- Add a callback for external style overriders
-    self:AddForceUpdate(UnitFrame_PostUpdate)
+    -- self:AddForceUpdate(UnitFrame_PostUpdate)
 
     -- Textures need an update when frame is displayed.
     self.PostUpdate = UnitFrame_PostUpdate
@@ -714,4 +720,92 @@ UnitStyles["Party"] = function(self, unit, id)
     -- Register events to handle additional texture updates.
     self:RegisterEvent("PLAYER_ENTERING_WORLD", OnEvent, true)
     self:RegisterEvent("PLAYER_TARGET_CHANGED", OnEvent, true)
+end
+
+PartyFrameMod.DisableBlizzard = function(self)
+    oUF:DisableBlizzard("party")
+end
+
+PartyFrameMod.GetHeaderAttributes = function(self)
+    local config = ns.GetConfig("PartyFrames")
+    local driver = {}
+    table_insert(driver, "custom [group:party,nogroup:raid] " .. (defaults.useInParties and "show" or "hide"))
+    table_insert(driver, "[@raid26,exists] " .. (defaults.useInRaid40 and "show" or "hide"))
+    table_insert(driver, "[@raid11,exists] " .. (defaults.useInRaid25 and "show" or "hide"))
+    table_insert(driver, "[@raid6,exists] " .. (defaults.useInRaid10 and "show" or "hide"))
+    table_insert(driver, "[group:raid] " .. (defaults.useInRaid5 and "show" or "hide"))
+    table_insert(driver, "hide")
+    table_concat(driver, ";")
+    local driverString = table_concat(driver, ";")
+
+    return ns.Prefix .. "Party", nil, driverString,
+        "initial-width", config.UnitSize[1],
+        "initial-height", config.UnitSize[2],
+        "oUF-initialConfigFunction", [[
+		local header = self:GetParent();
+		self:SetWidth(header:GetAttribute("initial-width"));
+		self:SetHeight(header:GetAttribute("initial-height"));
+		self:SetFrameLevel(self:GetFrameLevel() + 10);
+	]],
+        "showParty", true,
+        "showSolo", true,
+        "showPlayer", true,
+        "sortMethod", "INDEX",            -- INDEX, NAME -- Member sorting within each group
+        "sortDir", "ASC",                 -- ASC, DESC
+        "groupFilter", "1,2,3,4,5,6,7,8", -- Group filter
+        "point", defaults.point,          -- Unit anchoring within each column
+        "xOffset", defaults.xOffset,
+        "yOffset", defaults.yOffset,
+        "groupBy", defaults.groupBy,               -- ROLE, CLASS, GROUP -- Grouping order and type
+        "groupingOrder", defaults.groupingOrder,
+        "unitsPerColumn", defaults.unitsPerColumn, -- Column setup and growth
+        "maxColumns", defaults.maxColumns,
+        "columnSpacing", defaults.columnSpacing,
+        "columnAnchorPoint", defaults.columnAnchorPoint
+end
+
+PartyFrameMod.GetHeaderSize = function(self)
+    local config = ns.GetConfig("PartyFrames")
+    return config.UnitSize[1] * 5 + math_abs(defaults.xOffset * 4),
+        config.UnitSize[2] * 1 + math_abs(defaults.columnSpacing * 0)
+end
+
+PartyFrameMod.CreateUnitFrames = function(self)
+    local name = "Party"
+    oUF:RegisterStyle(ns.Prefix .. name, style)
+    oUF:Factory(function(oUF)
+        oUF:SetActiveStyle(ns.Prefix .. name)
+
+        local config = ns.GetConfig("PartyFrames")
+        local header = ns.API.SetObjectScale(oUF:SpawnHeader(self.GetHeaderAttributes()))
+        header:SetPoint(unpack(config.Position))
+        self.frame = header;
+        self.frame:SetSize(self:GetHeaderSize())
+
+        if (InCombatLockdown()) then
+            self.needHeaderUpdate = true
+            self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
+            return
+        end
+        self.frame:RegisterEvent("PARTY_LEADER_CHANGED", "UpdateUnits")
+    end)
+end
+
+PartyFrameMod.UpdateUnitFrames = function(self)
+    if (not self.frame) then return end
+    for frame in next, Units do
+        if (defaults.showAuras) then
+            frame:EnableElement("Auras")
+            frame.Auras:ForceUpdate()
+        else
+            frame:DisableElement("Auras")
+        end
+        frame:UpdateAllElements("RefreshUnit")
+    end
+end
+
+PartyFrameMod.OnEnable = function(self)
+    self:DisableBlizzard()
+    self:CreateUnitFrames()
+    self:UpdateUnitFrames()
 end
