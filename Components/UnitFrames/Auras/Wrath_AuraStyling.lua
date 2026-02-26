@@ -185,13 +185,7 @@ ns.AuraStyles.TargetPostUpdateButton = function(element, unit, button, index, po
 	end
 
 	-- Icon Coloring
-	if (button.isPlayer) then
-		button.Icon:SetDesaturated(false)
-		button.Icon:SetVertexColor(1, 1, 1)
-	else
-		button.Icon:SetDesaturated(true)
-		button.Icon:SetVertexColor(.6, .6, .6)
-	end
+	button.Icon:SetVertexColor(1, 1, 1)
 end
 
 ns.AuraStyles.NameplatePostUpdateButton = function(element, unit, button, index, position, duration, expiration,
