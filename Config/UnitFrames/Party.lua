@@ -46,13 +46,44 @@ local barSparkMap = {
 }
 
 ns.RegisterConfig("PartyFrames", {
-	-- Header Position & Layut
+	-- Header Position & Layout
 	-----------------------------------------
-	Position = { "TOPLEFT", UIParent, "TOPLEFT", 50, -42 }, -- party header position
-	Size = { 130 * 5, 130 },                             -- size of the entire header frame area
-	UnitSize = { 130, 140 },                             -- party member size
-	OutOfRangeAlpha = .6,                                -- Alpha of out of range party members
+	UnitSize = { 130, 140 }, -- party member size
 
+	Normal = {
+		Position = { "TOPLEFT", UIParent, "TOPLEFT", 50, -42 }, -- party header position
+		Point = "LEFT",
+		Size = { 130 * 5, 130 },                          -- size of the entire header frame area
+		MaxColumns = 1,
+		UnitsPerColumn = 5,
+		ColumnSpacing = 0,
+		ColumnAnchorPoint = "TOP",
+		AurasPosition = { "BOTTOM", 0, -(34 * 2 + 22) + 10 },
+	},
+
+	-- use BG3 Mode
+	BG3Mode = {
+		Position = { "LEFT", UIParent, "LEFT", 0, 0 },
+		Point = "BOTTOM",
+		MaxColumns = 5,
+		UnitsPerColumn = 1,
+		ColumnSpacing = 10,
+		ColumnAnchorPoint = "BOTTOM",
+		AurasPosition = { "RIGHT", 100, 0 },
+	},
+
+	--Healer Mode
+	HealerMode = {
+		Position = { "CENTER", UIParent, "CENTER", -400, 0 },
+		Point = "BOTTOM",
+		MaxColumns = 5,
+		UnitsPerColumn = 1,
+		ColumnSpacing = 10,
+		ColumnAnchorPoint = "BOTTOM",
+		AurasPosition = { "RIGHT", 100, 0 },
+	},
+
+	-- OutOfRangeAlpha = .6,                                -- Alpha of out of range party members
 	-- Health
 	-----------------------------------------
 	HealthBarPosition = { "BOTTOM", 0, 10 },
@@ -156,7 +187,7 @@ ns.RegisterConfig("PartyFrames", {
 	NameColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .75 },
 	-- Auras
 	-----------------------------------------
-	AurasPosition = { "BOTTOM", 0, -(34 * 2 + 22) + 10 },
+	
 	AurasSize = { 34 * 3 - 4, 34 * 2 - 4 },
 	AuraSize = 30,
 	AuraSpacing = 4,

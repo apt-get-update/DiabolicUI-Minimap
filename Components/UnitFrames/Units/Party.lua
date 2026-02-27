@@ -40,6 +40,8 @@ local unpack = unpack
 -- Default Settings
 local defaults = {
     enabled = true,
+    useHealerMode = false,
+    useBG3Mode = true,
     useInParties = true, -- show in non-raid parties
     useInRaid5 = true,   -- show in raid groups of 1-5 players
     useInRaid10 = false, -- show in raid groups of 6-10 players
@@ -52,10 +54,6 @@ local defaults = {
     yOffset = 0,                           -- vertical offset within the same column
     groupBy = "ROLE",                      -- GROUP, CLASS, ROLE
     groupingOrder = "TANK,HEALER,DAMAGER", -- must match choice in groupBy
-    unitsPerColumn = 5,                    -- maximum units per column
-    maxColumns = 1,                        -- should be 5/unitsPerColumn
-    columnSpacing = 0,                     -- spacing between columns
-    columnAnchorPoint = "TOP"              -- anchor point of column, columns grow opposite
 }
 
 local PartyFrameMod = ns:NewModule("PartyFrames", "LibMoreEvents-1.0", "AceHook-3.0")
@@ -677,9 +675,10 @@ local style = function(self, unit)
     self.LeaderIndicator = leaderIndicator
     -- Auras
     --------------------------------------------
+    local mode = defaults.useHealerMode and "HealerMode" or defaults.useBG3Mode and "BG3Mode" or "Normal";
     local auras = CreateFrame("Frame", "PartyAuras", self)
     auras:SetSize(unpack(db.AurasSize))
-    auras:SetPoint(unpack(db.AurasPosition))
+    auras:SetPoint(unpack(db[mode].AurasPosition))
     auras.size = db.AuraSize
     auras.spacing = db.AuraSpacing
     auras.numTotal = db.AurasNumTotal
@@ -728,6 +727,8 @@ end
 
 PartyFrameMod.GetHeaderAttributes = function(self)
     local config = ns.GetConfig("PartyFrames")
+    local mode = defaults.useHealerMode and "HealerMode" or defaults.useBG3Mode and "BG3Mode" or "Normal";
+    local modeConfig = config[mode];
     local driver = {}
     table_insert(driver, "custom [group:party,nogroup:raid] " .. (defaults.useInParties and "show" or "hide"))
     table_insert(driver, "[@raid26,exists] " .. (defaults.useInRaid40 and "show" or "hide"))
@@ -748,26 +749,33 @@ PartyFrameMod.GetHeaderAttributes = function(self)
 		self:SetFrameLevel(self:GetFrameLevel() + 10);
 	]],
         "showParty", true,
-        "showSolo", true,
-        "showPlayer", true,
+        "showSolo", false,
+        "showPlayer", defaults.useHealerMode,
         "sortMethod", "INDEX",            -- INDEX, NAME -- Member sorting within each group
         "sortDir", "ASC",                 -- ASC, DESC
         "groupFilter", "1,2,3,4,5,6,7,8", -- Group filter
-        "point", defaults.point,          -- Unit anchoring within each column
+        "point", modeConfig.Point,        -- Unit anchoring within each column
         "xOffset", defaults.xOffset,
         "yOffset", defaults.yOffset,
         "groupBy", defaults.groupBy,               -- ROLE, CLASS, GROUP -- Grouping order and type
         "groupingOrder", defaults.groupingOrder,
-        "unitsPerColumn", defaults.unitsPerColumn, -- Column setup and growth
-        "maxColumns", defaults.maxColumns,
-        "columnSpacing", defaults.columnSpacing,
-        "columnAnchorPoint", defaults.columnAnchorPoint
+        "unitsPerColumn", modeConfig.UnitsPerColumn, -- Column setup and growth
+        "maxColumns", modeConfig.MaxColumns,
+        "columnSpacing", modeConfig.ColumnSpacing,
+        "columnAnchorPoint", modeConfig.ColumnAnchorPoint
 end
 
 PartyFrameMod.GetHeaderSize = function(self)
     local config = ns.GetConfig("PartyFrames")
+    local mode = defaults.useHealerMode and "HealerMode" or defaults.useBG3Mode and "BG3Mode" or "Normal";
+    local modeConfig = config[mode];
+    if defaults.useHealerMode or defaults.useBG3Mode then
+        return config.UnitSize[2] * 1 + math_abs(modeConfig.ColumnSpacing * 0),
+            config.UnitSize[1] * 5 + math_abs(defaults.xOffset * 4)
+    else
     return config.UnitSize[1] * 5 + math_abs(defaults.xOffset * 4),
-        config.UnitSize[2] * 1 + math_abs(defaults.columnSpacing * 0)
+            config.UnitSize[2] * 1 + math_abs(modeConfig.ColumnSpacing * 0)
+    end
 end
 
 PartyFrameMod.CreateUnitFrames = function(self)
@@ -776,18 +784,19 @@ PartyFrameMod.CreateUnitFrames = function(self)
     oUF:Factory(function(oUF)
         oUF:SetActiveStyle(ns.Prefix .. name)
 
+        local mode = defaults.useHealerMode and "HealerMode" or defaults.useBG3Mode and "BG3Mode" or "Normal";
         local config = ns.GetConfig("PartyFrames")
         local header = ns.API.SetObjectScale(oUF:SpawnHeader(self.GetHeaderAttributes()))
-        header:SetPoint(unpack(config.Position))
+        header:SetSize(self:GetHeaderSize())
+        local position = config[mode].Position
+        header:SetPoint(unpack(position))
+        header:RegisterEvent("PARTY_LEADER_CHANGED", "UpdateUnits")
         self.frame = header;
-        self.frame:SetSize(self:GetHeaderSize())
-
         if (InCombatLockdown()) then
             self.needHeaderUpdate = true
             self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
             return
         end
-        self.frame:RegisterEvent("PARTY_LEADER_CHANGED", "UpdateUnits")
     end)
 end
 
