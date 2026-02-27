@@ -41,7 +41,7 @@ local unpack = unpack
 local defaults = {
     enabled = true,
     useHealerMode = false,
-    useBG3Mode = true,
+    useBG3Mode = false,
     useInParties = true, -- show in non-raid parties
     useInRaid5 = true,   -- show in raid groups of 1-5 players
     useInRaid10 = false, -- show in raid groups of 6-10 players
@@ -750,7 +750,7 @@ PartyFrameMod.GetHeaderAttributes = function(self)
 	]],
         "showParty", true,
         "showSolo", false,
-        "showPlayer", defaults.useHealerMode,
+        "showPlayer", defaults.showPlayer,
         "sortMethod", "INDEX",            -- INDEX, NAME -- Member sorting within each group
         "sortDir", "ASC",                 -- ASC, DESC
         "groupFilter", "1,2,3,4,5,6,7,8", -- Group filter

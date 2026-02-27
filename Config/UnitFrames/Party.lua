@@ -63,7 +63,7 @@ ns.RegisterConfig("PartyFrames", {
 
 	-- use BG3 Mode
 	BG3Mode = {
-		Position = { "LEFT", UIParent, "LEFT", 0, 0 },
+		Position = { "LEFT", UIParent, "LEFT", 20, 100 },
 		Point = "BOTTOM",
 		MaxColumns = 5,
 		UnitsPerColumn = 1,
