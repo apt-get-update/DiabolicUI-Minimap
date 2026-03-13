@@ -35,7 +35,7 @@ local GetMedia = ns.API.GetMedia
 Config.Minimap = {
 
 	Size = { 213, 213 },
-	Position = { "BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -58, 59 },
+	Position = { "BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -76, 59 },
 	MaskTexture = GetMedia("minimap-mask-transparent"),
 
 	BackdropSize = { 217, 217 },
