@@ -89,6 +89,7 @@ colors.power[0] = colors.power.MANA
 colors.power[1] = colors.power.RAGE
 colors.power[2] = colors.power.FOCUS
 colors.power[3] = colors.power.ENERGY
+colors.power[4] = colors.power.COMBO_POINTS
 colors.power[4] = colors.power.HAPPINESS
 colors.power[5] = colors.power.RUNES
 colors.power[6] = colors.power.RUNIC_POWER

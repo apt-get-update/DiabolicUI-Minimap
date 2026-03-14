@@ -18,7 +18,9 @@ A default texture will be applied if the sub-widgets are StatusBars and don't ha
 ## Options
 
 .colorSpec - Use `self.colors.runes[specID]` to color the bar based on player's spec. `specID` is defined by the return
-             value of [GetSpecialization](http://wowprogramming.com/docs/api/GetSpecialization) (boolean)
+             value of [GetSpecialization](http://wowprogramming.com/docs/api/GetSpecialization.html) (boolean)
+.sortOrder - Sorting order. Sorts by the remaining cooldown time, 'asc' - from the least cooldown time remaining (fully
+             charged) to the most (fully depleted), 'desc' - the opposite (string?)['asc', 'desc']
 
 ## Sub-Widgets Options
 
@@ -45,16 +47,16 @@ if(select(2, UnitClass('player')) ~= 'DEATHKNIGHT') then return end
 local _, ns = ...
 local oUF = ns.oUF
 
-local floor = math.floor
-
+local sort = sort
+local ipairs = ipairs
+local UnitHasVehicleUI = UnitHasVehicleUI
+local GetSpecialization = GetSpecialization
 local GetRuneCooldown = GetRuneCooldown
 local GetRuneType = GetRuneType
 local GetTime = GetTime
-local UnitHasVehicleUI = UnitHasVehicleUI
 
-local runemap = {1, 2, 5, 6, 3, 4}
-
-local VisibilityPath
+local runemap = oUF.isWrath and { 1, 2, 5, 6, 3, 4 } or { 1, 2, 3, 4, 5, 6 }
+local hasSortOrder = false
 
 local function onUpdate(self, elapsed)
 	local duration = self.duration + elapsed
@@ -62,72 +64,167 @@ local function onUpdate(self, elapsed)
 	self:SetValue(duration)
 end
 
-local function UpdateType(self, event, runeID, alt)
-	local element = self.Runes
-	local rune = element[runemap[runeID]]
-	local runeType = GetRuneType(runeID) or alt
-
-	if not runeType then return end
-
-	local color = self.colors.runes[runeType]
-	local r, g, b = color[1], color[2], color[3]
-
-	rune:SetStatusBarColor(r, g, b)
-
-	if(rune.bg) then
-		local mu = rune.bg.multiplier or 1
-		rune.bg:SetVertexColor(r * mu, g * mu, b * mu)
-	end
-
-	if(element.PostUpdateType) then
-		return element:PostUpdateType(rune, runeID, alt)
+local function ascSort(runeAID, runeBID)
+	local runeAStart, _, runeARuneReady = GetRuneCooldown(runeAID)
+	local runeBStart, _, runeBRuneReady = GetRuneCooldown(runeBID)
+	if (runeARuneReady ~= runeBRuneReady) then
+		return runeARuneReady
+	elseif (runeAStart ~= runeBStart) then
+		return runeAStart < runeBStart
+	else
+		return runeAID < runeBID
 	end
 end
 
-local function Update(self, event, runeID)
-	local element = self.Runes
-	local rune = element[runemap[runeID]]
-	if(not rune) then return end
-
-	local start, duration, runeReady
-	if(UnitHasVehicleUI('player')) then
-		rune:Hide()
+local function descSort(runeAID, runeBID)
+	local runeAStart, _, runeARuneReady = GetRuneCooldown(runeAID)
+	local runeBStart, _, runeBRuneReady = GetRuneCooldown(runeBID)
+	if (runeARuneReady ~= runeBRuneReady) then
+		return runeBRuneReady
+	elseif (runeAStart ~= runeBStart) then
+		return runeAStart > runeBStart
 	else
-		start, duration, runeReady = GetRuneCooldown(runeID)
-		if(not start) then return end
+		return runeAID > runeBID
+	end
+end
 
-		if(runeReady) then
-			rune:SetMinMaxValues(0, 1)
-			rune:SetValue(1)
-			rune:SetScript('OnUpdate', nil)
-		else
-			rune.duration = GetTime() - start
-			rune.max = duration
-			rune:SetMinMaxValues(0, duration)
-			rune:SetValue(0)
-			rune:SetScript('OnUpdate', onUpdate)
-		end
+local function UpdateRuneType(rune, runeID, alt)
+	rune.runeType = GetRuneType(runeID) or alt
 
-		rune:Show()
+	return rune
+end
+
+local function ColorRune(self, bar, runeType)
+	local color = runeType and self.colors.runes[runeType] or self.colors.power.RUNES
+	local r, g, b = color[1], color[2], color[3]
+	bar:SetStatusBarColor(r, g, b)
+
+	local bg = bar.bg
+	if bg then
+		local mu = bg.multiplier or 1
+		bg:SetVertexColor(r * mu, g * mu, b * mu)
 	end
 
-	--[[ Callback: Runes:PostUpdate(rune, runeID, start, duration, isReady)
+	return color, r, g, b
+end
+
+local function UpdateColor(self, event, runeID, alt)
+	local element = self.Runes
+
+	local rune, specType
+	if oUF.isWrath then -- runeID, alt
+		if runeID and event == 'RUNE_TYPE_UPDATE' then
+			rune = UpdateRuneType(element[runemap[runeID]], runeID, alt)
+		end
+	else
+		local spec = element.colorSpec and GetSpecialization() or 0
+		if spec > 0 and spec < 4 then
+			specType = spec
+		end
+	end
+
+	local color, r, g, b
+	if rune then
+		color, r, g, b = ColorRune(self, rune, specType or rune.runeType)
+	else
+		for i = 1, #element do
+			local bar = element[i]
+			if oUF.isWrath then
+				if not bar.runeType then
+					bar.runeType = GetRuneType(runemap[i])
+				end
+			else
+				bar.runeType = specType
+			end
+
+			color, r, g, b = ColorRune(self, bar, specType or bar.runeType)
+		end
+	end
+
+	--[[ Callback: Runes:PostUpdateColor(r, g, b)
+	Called after the element color has been updated.
+
+	* self - the Runes element
+	* r    - the red component of the used color (number)[0-1]
+	* g    - the green component of the used color (number)[0-1]
+	* b    - the blue component of the used color (number)[0-1]
+	--]]
+	if (element.PostUpdateColor) then
+		element:PostUpdateColor(r, g, b, color, rune)
+	end
+end
+
+local function ColorPath(self, ...)
+	--[[ Override: Runes.UpdateColor(self, event, ...)
+	Used to completely override the internal function for updating the widgets' colors.
+
+	* self  - the parent object
+	* event - the event triggering the update (string)
+	* ...   - the arguments accompanying the event
+	--]]
+	(self.Runes.UpdateColor or UpdateColor)(self, ...)
+end
+
+local function Update(self, event)
+	local element = self.Runes
+
+	if not oUF.isWrath then
+		if element.sortOrder == 'asc' then
+			sort(runemap, ascSort)
+			hasSortOrder = true
+		elseif element.sortOrder == 'desc' then
+			sort(runemap, descSort)
+			hasSortOrder = true
+		elseif hasSortOrder then
+			sort(runemap)
+			hasSortOrder = false
+		end
+	end
+
+	local allReady = true
+	local currentTime = GetTime()
+	local hasVehicle = UnitHasVehicleUI('player')
+	for index, runeID in ipairs(runemap) do
+		local rune = element[index]
+		if not rune then break end
+
+		if hasVehicle then
+			rune:Hide()
+
+			allReady = false
+		else
+			local start, duration, runeReady = GetRuneCooldown(runeID)
+			if runeReady then
+				rune:SetMinMaxValues(0, 1)
+				rune:SetValue(1)
+				rune:SetScript('OnUpdate', nil)
+			elseif start then
+				rune.duration = currentTime - start
+				rune:SetMinMaxValues(0, duration)
+				rune:SetValue(0)
+				rune:SetScript('OnUpdate', onUpdate)
+			end
+
+			if not runeReady then
+				allReady = false
+			end
+
+			rune:Show()
+		end
+	end
+
+	--[[ Callback: Runes:PostUpdate(runemap)
 	Called after the element has been updated.
 
-	* self     - the Runes element
-	* rune     - the updated rune (StatusBar)
-	* runeID   - the index of the updated rune (number)
-	* start    - the value of `GetTime()` when the rune cooldown started (0 for ready) (number)
-	* duration - the duration of the rune's cooldown (number)
-	* isReady  - indicates if the rune is ready for use (boolean)
+	* self    - the Runes element
+	* runemap - the ordered list of runes' indices (table)
 	--]]
-	if(element.PostUpdate) then
-		return element:PostUpdate(rune, runeID, start, duration, runeReady)
+	if (element.PostUpdate) then
+		return element:PostUpdate(runemap, hasVehicle, allReady)
 	end
 end
 
-local function Path(self, event, ...)
-	local element = self.Runes
+local function Path(self, ...)
 	--[[ Override: Runes.Override(self, event, ...)
 	Used to completely override the internal update function.
 
@@ -135,99 +232,44 @@ local function Path(self, event, ...)
 	* event - the event triggering the update (string)
 	* ...   - the arguments accompanying the event
 	--]]
-	local UpdateMethod = element.Override or Update
-	if(event == 'RUNE_POWER_UPDATE') then
-		return UpdateMethod(self, event, ...)
-	else
-		--[[ Override: Runes:UpdateType(powerType)
-		Used to completely override the internal function for updating the widgets' colors.
-
-		* self  - the Runes element
-		* index - the index of the updated rune (number)
-		--]]
-		local UpdateTypeMethod = element.UpdateType or UpdateType
-		for index = 1, #element do
-			UpdateTypeMethod(self, element, index)
-			UpdateMethod(self, event, index)
-		end
-	end
+	(self.Runes.Override or Update)(self, ...)
 end
 
-local function RunesEnable(self)
-	self:RegisterEvent('UNIT_ENTERED_VEHICLE', VisibilityPath)
-	self:UnregisterEvent('UNIT_EXITED_VEHICLE', VisibilityPath)
-
-	self.Runes:Show()
-
-	if self.Runes.PostUpdateVisibility then
-		self.Runes:PostUpdateVisibility(true, not self.Runes.isEnabled)
-	end
-
-	self.Runes.isEnabled = true
-
-	Path(self, 'RunesEnable')
+local function AllPath(...)
+	Path(...)
+	ColorPath(...)
 end
 
-local function RunesDisable(self)
-	self:UnregisterEvent('UNIT_ENTERED_VEHICLE', VisibilityPath)
-	self:RegisterEvent('UNIT_EXITED_VEHICLE', VisibilityPath)
-
-	self.Runes:Hide()
-
-	if self.Runes.PostUpdateVisibility then
-		self.Runes:PostUpdateVisibility(false, self.Runes.isEnabled)
-	end
-
-	self.Runes.isEnabled = false
-
-	Path(self, 'RunesDisable')
-end
-
-local function Visibility(self, event, ...)
-	local element = self.Runes
-	local shouldEnable
-
-	if not (UnitHasVehicleUI('player')) then
-		shouldEnable = true
-	end
-
-	local isEnabled = element.isEnabled
-	if(shouldEnable and not isEnabled) then
-		RunesEnable(self)
-	elseif(not shouldEnable and (isEnabled or isEnabled == nil)) then
-		RunesDisable(self)
-	elseif(shouldEnable and isEnabled) then
-		Path(self, event, ...)
-	end
-end
-
-VisibilityPath = function(self, ...)
-	return (self.Runes.OverrideVisibility or Visibility) (self, ...)
-end
-
-local ForceUpdate = function(element)
-	return VisibilityPath(element.__owner, 'ForceUpdate', element.__owner.unit)
+local function ForceUpdate(element)
+	Path(element.__owner, 'ForceUpdate')
+	ColorPath(element.__owner, 'ForceUpdate')
 end
 
 local function Enable(self, unit)
+	print("Enable Runes for", unit)
 	local element = self.Runes
-	if(element and unit == 'player') then
+	if (element and UnitIsUnit(unit, 'player')) then
 		element.__owner = self
 		element.ForceUpdate = ForceUpdate
 
 		for i = 1, #element do
-			local rune = element[runemap[i]]
+			local rune = element[i]
 			if(rune:IsObjectType('StatusBar') and not rune:GetStatusBarTexture()) then
 				rune:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
 			end
+		end
 
-			-- From my minor testing this is a okey solution. A full login always remove
-			-- the death runes, or at least the clients knowledge about them.
-			UpdateType(self, nil, i, floor((i + 1) / 2))
+		if element.IsObjectType and element:IsObjectType("Frame") then
+			element:Show()
+		end
+
+		if oUF.isWrath then
+			self:RegisterEvent('RUNE_TYPE_UPDATE', ColorPath, true)
+		else
+			self:RegisterEvent('PLAYER_SPECIALIZATION_CHANGED', ColorPath)
 		end
 
 		self:RegisterEvent('RUNE_POWER_UPDATE', Path, true)
-		self:RegisterEvent('RUNE_TYPE_UPDATE', UpdateType, true)
 		self:RegisterEvent('PLAYER_ENTERING_WORLD', Path)
 
 		-- oUF leaves the vehicle events registered on the player frame, so
@@ -251,14 +293,18 @@ local function Disable(self)
 			element[i]:Hide()
 		end
 
-		self:SetScript('OnUpdate', nil)
+		if element.IsObjectType and element:IsObjectType("Frame") then
+			element:Hide()
+		end
+
+		if oUF.Wrath then
+			self:UnregisterEvent('RUNE_TYPE_UPDATE', ColorPath)
+		else
+			self:UnregisterEvent('PLAYER_SPECIALIZATION_CHANGED', ColorPath)
+		end
 
 		self:UnregisterEvent('RUNE_POWER_UPDATE', Path)
-		self:UnregisterEvent('RUNE_TYPE_UPDATE', UpdateType)
-		self:UnregisterEvent('PLAYER_ENTERING_WORLD', Path)
-
-		RunesDisable(self)
 	end
 end
 
-oUF:AddElement('Runes', VisibilityPath, Enable, Disable)
+oUF:AddElement('Runes', AllPath, Enable, Disable)

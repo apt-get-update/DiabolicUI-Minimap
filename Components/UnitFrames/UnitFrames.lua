@@ -37,7 +37,6 @@ local SetEffectiveObjectScale = ns.API.SetEffectiveObjectScale
 local Spawn = function(unit, name)
     local fullName = ns.Prefix .. "UnitFrame" .. name
     local frame = oUF:Spawn(unit, fullName)
-
     -- Vehicle switching is currently broken in Wrath.
     if (ns.IsWrath) then
         if (unit == "player") then
@@ -256,7 +255,7 @@ UnitFrames.SpawnUnitFrames = function(self)
         -- every variation of the class resource layout are
         -- all placed relative to UIParent not to the unit frame.
         -- Movement is coming, it's just fairly low on my priority list.
-        Spawn("player", "PlayerHUD")
+        -- Spawn("player", "PlayerClassPower")
         Spawn("player", "Player")
         Spawn("pet", "Pet")
         Spawn("focus", "Focus")
