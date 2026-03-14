@@ -225,16 +225,14 @@ end
 
 do
     function ClassPowerEnable(self)
-        self:RegisterEvent('UNIT_MAXENERGY', Path)
-        self:RegisterEvent('UNIT_ENERGY', Path)
+        self:RegisterEvent('UNIT_COMBO_POINTS', Path)
 
         self.ClassPower.__isEnabled = true
         Path(self, 'ClassPowerEnable', 'player', 'COMBO_POINTS')
     end
 
     function ClassPowerDisable(self)
-        self:UnregisterEvent('UNIT_MAXENERGY', Path)
-        self:UnregisterEvent('UNIT_ENERGY', Path)
+        self:UnregisterEvent('UNIT_COMBO_POINTS', Path)
 
         local element = self.ClassPower
         for i = 1, #element do
