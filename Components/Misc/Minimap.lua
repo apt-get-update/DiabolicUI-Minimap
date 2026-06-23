@@ -46,18 +46,70 @@ local GetMedia = ns.API.GetMedia
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
 local UIHider = ns.Hider
 local noop = ns.Noop
+local GetTime = ns.API.GetTime
+local GetFont = ns.API.GetFont
+local GetLocalTime = ns.API.GetLocalTime
+local GetServerTime = ns.API.GetServerTime
 
 -- WoW Strings
-local L_NEW = NEW                       -- "New"
-local L_MAIL = MAIL_LABEL               -- "Mail"
-local L_HAVE_MAIL = HAVE_MAIL           -- "You have unread mail"
+local L_FPS = FPS_ABBR -- "fps"
+local L_MS = MILLISECONDS_ABBR -- "ms"
+local L_RESTING = TUTORIAL_TITLE30 -- "Resting"
+local L_NEW = NEW -- "New"
+local L_MAIL = MAIL_LABEL -- "Mail"
+local L_HAVE_MAIL = HAVE_MAIL -- "You have unread mail"
 local L_HAVE_MAIL_FROM = HAVE_MAIL_FROM -- "Unread mail from:"
 
-local mapScale = 198 / 140
+local getTimeStrings = function(h, m, suffix, useHalfClock, abbreviateSuffix)
+	if (useHalfClock) then
+		return "%.0f:%02.0f |cff888888%s|r", h, m, abbreviateSuffix and string_match(suffix, "^.") or suffix
+	else
+		return "%02.0f:%02.0f", h, m
+	end
+end
+
+local Time_UpdateTooltip = function(self)
+	if (GameTooltip:IsForbidden()) then return end
+
+	-- local useHalfClock = ns.db.global.minimap.useHalfClock -- the outlandish 12 hour clock the colonials seem to favor so much
+	local useHalfClock = false
+	local lh, lm, lsuffix = GetLocalTime(useHalfClock) -- local computer time
+	local sh, sm, ssuffix = GetServerTime(useHalfClock) -- realm time
+	local r, g, b = unpack(Colors.normal)
+	local rh, gh, bh = unpack(Colors.highlight)
+
+	GameTooltip:SetOwner(self:GetParent(), "ANCHOR_NONE")
+	GameTooltip:SetPoint("TOPRIGHT", Minimap, "TOPLEFT", -40, 0)
+	GameTooltip:AddLine(TIMEMANAGER_TOOLTIP_TITLE, unpack(Colors.title))
+	GameTooltip:AddDoubleLine(TIMEMANAGER_TOOLTIP_LOCALTIME, string_format(getTimeStrings(lh, lm, lsuffix, useHalfClock)), rh, gh, bh, r, g, b)
+	GameTooltip:AddDoubleLine(TIMEMANAGER_TOOLTIP_REALMTIME, string_format(getTimeStrings(sh, sm, ssuffix, useHalfClock)), rh, gh, bh, r, g, b)
+	GameTooltip:AddLine("<"..GAMETIME_TOOLTIP_TOGGLE_CALENDAR..">", unpack(Colors.quest.green))
+	GameTooltip:Show()
+end
+
+local Time_OnEnter = function(self)
+	self.UpdateTooltip = Time_UpdateTooltip
+	self:UpdateTooltip()
+end
+
+local Time_OnLeave = function(self)
+	self.UpdateTooltip = nil
+	if (GameTooltip:IsForbidden()) then return end
+	GameTooltip:Hide()
+end
+
+local Time_OnClick = function(self, mouseButton)
+	if (ToggleCalendar) and (not InCombatLockdown()) then
+		ToggleCalendar()
+	end
+end
+
+-- local mapScale = 198 / 140
+local mapScale = 1.614
 
 local defaults = {
     enabled = true,
-    theme = "Azerite",
+    theme = "Diabolic",
     savedPosition = {
         scale = mapScale * ns.API.GetEffectiveScale(),
     }
@@ -171,6 +223,7 @@ local ObjectSnippets = {
 local ElementTypes = {
     Backdrop = "Texture",
     Border = "Texture",
+    Shade = "Texture",
     AzeriteEye = "Texture",
     AzeriteEyeClassicPvP = "Texture"
 }
@@ -187,7 +240,7 @@ local Skins = {
         Version = 1,
         Shape = "Round"
     },
-    ["Azerite"] = {
+    ["Diabolic"] = {
         Version = 1,
         Shape = "RoundTransparent",
         HideElements = {
@@ -216,7 +269,7 @@ local Skins = {
                 DrawLayer = "BACKGROUND",
                 DrawLevel = -7,
                 Path = GetMedia("minimap-mask-opaque"),
-                Size = function() return (198 / mapScale), (198 / mapScale) end,
+                Size = function() return (280 / mapScale), (280 / mapScale) end,
                 Point = { "CENTER" },
                 Color = { 0, 0, 0, .75 },
             },
@@ -225,7 +278,16 @@ local Skins = {
                 DrawLayer = "BORDER",
                 DrawLevel = 1,
                 Path = GetMedia("minimap-border"),
-                Size = function() return (404 / mapScale), (404 / mapScale) end,
+                Size = function() return (340 / mapScale), (340 / mapScale) end,
+                Point = { "CENTER", -1, 0 },
+                Color = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+            },
+            Shade = {
+                Owner = "Backdrop",
+                DrawLayer = "BORDER",
+                DrawLevel = 1,
+                Path = GetMedia("shade-circle"),
+                Size = function() return (280 / mapScale), (280 / mapScale) end,
                 Point = { "CENTER", -1, 0 },
                 Color = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
             },
@@ -233,7 +295,7 @@ local Skins = {
                 Owner = "Eye",
                 DrawLayer = "BORDER",
                 DrawLevel = 2,
-                Path = GetMedia("group-finder-eye-green"),
+                Path = GetMedia("group-finder-eye-orange"),
                 Size = { 64, 64 },
                 Point = { "CENTER", 0, 0 },
                 Color = { .90, .95, 1 }
@@ -331,6 +393,34 @@ MinimapMod.UpdateCompass = function(self)
     end
 end
 
+MinimapMod.UpdateClock = function(self)
+	local time = self.time
+  -- local useHalfClock = ns.db.global.minimap.useHalfClock
+  local useHalfClock = false
+	if (not time) then
+		return
+	end
+	if (ns.db.global.minimap.useServerTime) then
+		if (useHalfClock) then
+			local h, m, suffix = GetServerTime(true)
+			time:SetFormattedText("%.0f:%02d", h, m)
+			time.suffix:SetFormattedText(" %s", suffix)
+		else
+			time:SetFormattedText("%02d:%02d", GetServerTime(false))
+			time.suffix:SetText(nil)
+		end
+	else
+		if (useHalfClock) then
+			local h, m, suffix = GetLocalTime(true)
+			time:SetFormattedText("%.0f:%02d", h, m)
+			time.suffix:SetFormattedText(" %s", suffix)
+		else
+			time:SetFormattedText("%02d:%02d", GetLocalTime(false))
+			time.suffix:SetText(nil)
+		end
+	end
+end
+
 MinimapMod.UpdateMail = function(self)
     local mail = self.mail
     if (not mail) then return end
@@ -345,17 +435,21 @@ MinimapMod.UpdateMail = function(self)
 end
 
 MinimapMod.UpdateTimers = function(self)
-    self.rotateMinimap = GetCVarBool("rotateMinimap")
+  self.rotateMinimap = GetCVarBool("rotateMinimap")
 
-    if (self.rotateMinimap) then
-        if (not self.compassTimer) then
-            self.compassTimer = self:ScheduleRepeatingTimer("UpdateCompass", 1 / 60)
-            self:UpdateCompass()
-        end
-    elseif (self.compassTimer) then
-        self:CancelTimer(self.compassTimer)
-        self:UpdateCompass()
-    end
+  if (self.rotateMinimap) then
+      if (not self.compassTimer) then
+          self.compassTimer = self:ScheduleRepeatingTimer("UpdateCompass", 1 / 60)
+          self:UpdateCompass()
+      end
+  elseif (self.compassTimer) then
+      self:CancelTimer(self.compassTimer)
+      self:UpdateCompass()
+  end
+  if (not self.clockTimer) then
+    self.clockTimer = self:ScheduleRepeatingTimer("UpdateClock", 1)
+    self:UpdateClock()
+  end
 end
 
 -- Addon Styling & Initialization
@@ -363,14 +457,15 @@ end
 MinimapMod.InitializeMBB = function(self)
     local button = CreateFrame("Frame", nil, Minimap)
     button:SetFrameLevel(button:GetFrameLevel() + 10)
-    button:SetPoint("BOTTOMRIGHT", -244, 35)
-    button:SetSize(32, 32)
+
+    button:SetPoint("BOTTOMLEFT", Minimap, -4, -2)
+    button:SetSize(48, 48)
     button:SetFrameStrata("LOW") -- MEDIUM collides with Immersion
 
     local frame = _G.MBB_MinimapButtonFrame
     frame:SetParent(button)
     frame:RegisterForDrag()
-    frame:SetSize(32, 32)
+    frame:SetSize(48, 48)
     frame:ClearAllPoints()
     frame:SetFrameStrata("LOW") -- MEDIUM collides with Immersion
     frame:SetPoint("CENTER", 0, 0)
@@ -384,8 +479,8 @@ MinimapMod.InitializeMBB = function(self)
     local icon = _G.MBB_MinimapButtonFrame_Texture
     icon:ClearAllPoints()
     icon:SetPoint("CENTER", 0, 0)
-    icon:SetSize(32, 32)
-    icon:SetTexture(GetMedia("plus"))
+    icon:SetSize(48, 48)
+    icon:SetTexture(GetMedia("button-toggle-plus"))
     icon:SetTexCoord(0, 1, 0, 1)
     icon:SetAlpha(.85)
 
@@ -456,7 +551,7 @@ end
 
 MinimapMod.SetMinimapTheme = function(self, input)
     if (InCombatLockdown()) then return end
-    local theme = "azerite"
+    local theme = "diabolic"
     self:SetTheme(theme)
 end
 
@@ -604,6 +699,42 @@ MinimapMod.CreateCustomElements = function(self)
 
     self.compass = compass
 
+    -- Zone
+    local zoneName = Minimap:CreateFontString()
+    zoneName:SetDrawLayer("OVERLAY", 1)
+    zoneName:SetFontObject(GetFont(16,true))
+    zoneName:SetAlpha(.85)
+    zoneName:SetPoint("TOP", Minimap, "BOTTOM", 0, -14)
+    self.zoneName = zoneName
+  
+    -- Time
+    local timeFrame = CreateFrame("Button", nil, Minimap)
+    timeFrame:SetScript("OnEnter", Time_OnEnter)
+    timeFrame:SetScript("OnLeave", Time_OnLeave)
+    timeFrame:SetScript("OnClick", Time_OnClick)
+    timeFrame:RegisterForClicks("AnyUp")
+
+    local time = timeFrame:CreateFontString()
+    time:SetDrawLayer("OVERLAY", 1)
+    time:SetJustifyH("CENTER")
+    time:SetJustifyV("TOP")
+    time:SetFontObject(GetFont(14,true))
+    time:SetTextColor(unpack(Colors.offwhite))
+    time:SetAlpha(.85)
+    time:SetPoint("TOP", Minimap, "TOP", 0, -20)
+    timeFrame:SetAllPoints(time)
+    self.time = time
+
+    local timeSuffix = timeFrame:CreateFontString()
+    timeSuffix:SetDrawLayer("OVERLAY", 1)
+    timeSuffix:SetJustifyH("CENTER")
+    timeSuffix:SetJustifyV("TOP")
+    timeSuffix:SetFontObject(GetFont(11,true))
+    timeSuffix:SetTextColor(unpack(Colors.darkgray))
+    timeSuffix:SetAlpha(.75)
+    timeSuffix:SetPoint("TOPLEFT", time, "TOPRIGHT", 0, -2)
+    time.suffix = timeSuffix
+
     -- Coordinates
     local coordinates = frame:CreateFontString(nil, "OVERLAY", nil, 1)
     coordinates:SetJustifyH("CENTER")
@@ -639,7 +770,7 @@ end
 -- Update the visibility of the custom elements
 MinimapMod.UpdateCustomElements = function(self)
     if (not self.widgetFrame) then return end
-    if (CURRENT_THEME == "Azerite") then
+    if (CURRENT_THEME == "Diabolic") then
         self.widgetFrame:Show()
     else
         self.widgetFrame:Hide()
@@ -689,6 +820,27 @@ MinimapMod.UpdatePositionAndScale = function(self)
     if (self.PostUpdatePositionAndScale) then
         self:PostUpdatePositionAndScale()
     end
+end
+
+MinimapMod.UpdateZone = function(self)
+  local zoneName = self.zoneName
+  if (not zoneName) then
+    return
+  end
+  local a = zoneName:GetAlpha() -- needed to preserve alpha after text color changes
+  local minimapZoneName = GetMinimapZoneText()
+  local pvpType, isSubZonePvP, factionName = GetZonePVPInfo()
+  if (pvpType) then
+    local color = Colors.zone[pvpType]
+    if (color) then
+      zoneName:SetTextColor(color[1], color[2], color[3], a)
+    else
+      zoneName:SetTextColor(Colors.normal[1], Colors.normal[2], Colors.normal[3], a)
+    end
+  else
+    zoneName:SetTextColor(Colors.normal[1], Colors.normal[2], Colors.normal[3], a)
+  end
+  zoneName:SetText(minimapZoneName)
 end
 
 MinimapMod.UpdatePosition = function(self)
@@ -746,13 +898,33 @@ MinimapMod.OnEnable = function(self)
 
     MinimapCluster:EnableMouse(false)
     MinimapCluster:SetFrameLevel(1)
+    Minimap:RegisterEvent("PLAYER_ENTERING_WORLD")
+    Minimap:RegisterEvent("VARIABLES_LOADED")
+    Minimap:RegisterEvent("CVAR_UPDATE")
     Minimap:RegisterEvent("UPDATE_PENDING_MAIL")
+    Minimap:RegisterEvent("ZONE_CHANGED")
+    Minimap:RegisterEvent("ZONE_CHANGED_INDOORS")
+    Minimap:RegisterEvent("ZONE_CHANGED_NEW_AREA")
     Minimap:SetScript("OnEvent", function(frame, event, ...)
-        if (event == "UPDATE_PENDING_MAIL") then
+        if (event == "PLAYER_ENTERING_WORLD") then
+          self:UpdateZone()
+          self:UpdateMail()
+          self:UpdateTimers()
+        elseif (event == "VARIABLES_LOADED") then
+          self:UpdateTimers()
+          self:UpdateSize()
+          self:UpdatePosition()
+        elseif (event == "UPDATE_PENDING_MAIL") then
             self:UpdateMail()
+        elseif (event == "CVAR_UPDATE") then
+            self:UpdateTimers()
+        elseif (event == "ZONE_CHANGED" or event == "ZONE_CHANGED_INDOORS" or event == "ZONE_CHANGED_NEW_AREA") then
+            self:UpdateZone()
         end
     end)
     self.frame = Minimap
+    -- self.frame:SetSize(180,180)
+    self.frame:SetSize(280 / mapScale, 280 / mapScale)
     self.frame:SetMovable(true)
     self.frame:EnableMouseWheel(true)
     self.frame:SetScript("OnMouseWheel", Minimap_OnMouseWheel)

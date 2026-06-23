@@ -1,0 +1,18 @@
+= Minimap addon for DiabolicUI 3.3.5
+
+Forked from https://github.com/NethanosGit/AzeriteUI-3.3.5 but with only the minimap module
+With changes backported from https://github.com/GoldpawsStuff/DiabolicUI
+
+This is an addon for the minimap. To be used with https://github.com/apt-get-update/DiabolicUI .
+
+== Changes
+
+* Diabolic theme with borders and shades
+* Display zone and update it
+* Resized to be smaller
+* MBB button re-skinned and repositioned
+
+== Dependencies
+
+* DiabolicUI https://github.com/apt-get-update/DiabolicUI
+* MBB https://www.curseforge.com/wow/addons/mbb/files/all?page=1&pageSize=20&version=3.3.5&showAlphaFiles=hide

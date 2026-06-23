@@ -34,21 +34,21 @@ local GetMedia = ns.API.GetMedia
 
 Config.Minimap = {
 
-	Size = { 213, 213 },
-	Position = { "BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -58, 59 },
+	Size = { 280, 280 },
+	Position = { "TOPRIGHT", UIParent, "TOPRIGHT", -20, -20 },
 	MaskTexture = GetMedia("minimap-mask-transparent"),
 
-	BackdropSize = { 217, 217 },
+	BackdropSize = { 280, 280 },
 	BackdropPosition = { "CENTER", 0, 0 },
 	BackdropTexture = GetMedia("minimap-mask-opaque"),
 	BackdropColor = { 0, 0, 0, .75 },
 
-	BorderSize = { 419, 419 },
+	BorderSize = { 340, 340 },
 	BorderPosition = { "CENTER", 0, 0 },
 	BorderTexture = GetMedia("minimap-border"),
 	BorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
-	CompassInset = 14,
+	CompassInset = 10,
 	CompassFont = GetFont(16, true),
 	CompassColor = { Colors.normal[1], Colors.normal[2], Colors.normal[3], .75 },
 	CompassNorthTag = "N",
@@ -78,7 +78,7 @@ Config.Minimap = {
 	LatencyFont = GetFont(12, true),
 	LatencyColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .5 },
 
-	MailPosition = { "BOTTOM", 0, 30 },
+	MailPosition = { "BOTTOM", 0, 20 },
 	MailJustifyH = "CENTER",
 	MailJustifyV = "MIDDLE",
 	MailFont = GetFont(15, true),
@@ -87,7 +87,7 @@ Config.Minimap = {
 	-- Dungeon Eye
 	EyePosition = { "CENTER", math.cos(225 * (math.pi / 180)) * (280 / 2 + 10), math.sin(225 * (math.pi / 180)) * (280 / 2 + 10) },
 	EyeSize = { 64, 64 },
-	EyeTexture = GetMedia("group-finder-eye-green"),
+	EyeTexture = GetMedia("group-finder-eye-orange"),
 	EyeTextureColor = { .90, .95, 1 },
 	EyeTextureSize = { 64, 64 },
 	EyeGroupSizePosition = { "BOTTOMRIGHT", 0, 0 },
@@ -97,7 +97,7 @@ Config.Minimap = {
 	-- MBB Integration
 	MBBPosition = { "BOTTOMRIGHT", -244, 35 },
 	MBBSize = { 32, 32 },
-	MBBTexture = GetMedia("plus"),
+	MBBTexture = GetMedia("button-toggle-plus"),
 
 	-- Narcissus Integragtion
 	NarciPosition = { "CENTER", Minimap, "TOP", 0, 8 },

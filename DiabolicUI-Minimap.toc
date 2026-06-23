@@ -1,5 +1,5 @@
 ## Interface: 30300
-## Title: Azerite UI
+## Title: |cff8a0707Diabolic|r|cffffffffUI|r|cff8a0707Minimap|r
 ## Version: 0.1
 ## Author: Nethanos
 ## X-Category: Interface Enhancements
@@ -8,7 +8,7 @@
 Libs\Libs_Wrath.xml
 
 # Compatibility
-Core\Compatibility.lua
+# Core\Compatibility.lua
 
 # Addon localization
 Locale\Locale.xml
