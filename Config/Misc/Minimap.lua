@@ -35,7 +35,7 @@ local GetMedia = ns.API.GetMedia
 Config.Minimap = {
 
 	Size = { 280, 280 },
-	Position = { "TOPRIGHT", UIParent, "TOPRIGHT", -20, -20 },
+	Position = { "TOPRIGHT", UIParent, "TOPRIGHT", -30, -30 },
 	MaskTexture = GetMedia("minimap-mask-transparent"),
 
 	BackdropSize = { 280, 280 },
@@ -62,7 +62,7 @@ Config.Minimap = {
 	ClockColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3] },
 
 	-- About 8px to the left of the clock.
-	ZoneTextPosition = { "BOTTOMRIGHT", -(226 + 60), -8 },            -- adjust this
+	ZoneTextPosition = { "TOPRIGHT", -(226 + 60), -8 },            -- adjust this
 	ZoneTextPositionHalfClock = { "BOTTOMRIGHT", -(226 + 60 + 20), -8 }, -- adjust this
 	ZoneTextFont = GetFont(15, true),
 	ZoneTextAlpha = .85,

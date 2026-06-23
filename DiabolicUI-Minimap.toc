@@ -1,5 +1,5 @@
 ## Interface: 30300
-## Title: |cff8a0707Diabolic|r|cffffffffUI|r|cff8a0707Minimap|r
+## Title: |cff8a0707Diabolic|r|cffffffffUI|r |cff8a0707M|r|cffffffffinimap|r
 ## Version: 0.1
 ## Author: Nethanos
 ## X-Category: Interface Enhancements

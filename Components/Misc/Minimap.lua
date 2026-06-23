@@ -704,7 +704,7 @@ MinimapMod.CreateCustomElements = function(self)
     zoneName:SetDrawLayer("OVERLAY", 1)
     zoneName:SetFontObject(GetFont(16,true))
     zoneName:SetAlpha(.85)
-    zoneName:SetPoint("TOP", Minimap, "BOTTOM", 0, -14)
+    zoneName:SetPoint("TOP", Minimap, "TOP", 0, 25)
     self.zoneName = zoneName
   
     -- Time
@@ -721,7 +721,7 @@ MinimapMod.CreateCustomElements = function(self)
     time:SetFontObject(GetFont(14,true))
     time:SetTextColor(unpack(Colors.offwhite))
     time:SetAlpha(.85)
-    time:SetPoint("TOP", Minimap, "TOP", 0, -20)
+    time:SetPoint("TOP", Minimap, "BOTTOM", 0, 20)
     timeFrame:SetAllPoints(time)
     self.time = time
 

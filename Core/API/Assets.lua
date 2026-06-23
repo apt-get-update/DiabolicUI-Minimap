@@ -64,7 +64,7 @@ local AllFonts, ChatFonts, NumberFonts, NormalFonts = {}, {}, {}, {}
 -- Return a font object, re-use existing ones that match.
 local GetFont = function(size, outline, type)
 	local inherit = type == "Chat" and _G.ChatFontNormal or type == "Number" and _G.NumberFont_Normal_Med or
-	_G.GameFontNormal
+	_G.MailFont_Large
 	local fontObject = Fonts[type or "Normal"][outline and "Outline" or "None"][size]
 	if (fontObject:GetFontObject() ~= inherit) then
 		fontObject:SetFontObject(inherit)
