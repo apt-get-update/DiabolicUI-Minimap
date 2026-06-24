@@ -76,3 +76,4 @@ AddMedia("texture", 	"Minimap Mask Opaque (Circular)", 				"minimap-mask-opaque"
 AddMedia("texture", 	"Minimap Mask Transparent (Circular)", 			"minimap-mask-transparent")
 AddMedia("texture", 	"Simple White Plus", 							"plus")
 AddMedia("texture", 	"Button White Plus", 							"button-toggle-plus")
+AddMedia("texture", 	"Button White Minus", 							"button-toggle-minus")
