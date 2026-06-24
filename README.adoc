@@ -11,6 +11,9 @@ This is an addon for the minimap. To be used with https://github.com/apt-get-upd
 * Display zone and update it
 * Resized to be smaller
 * MBB button re-skinned and repositioned
+* Clock in the minimap
+* Display compass (North)
+* Will use Diabolic Exocet Font
 
 == Dependencies
 

@@ -1,5 +1,6 @@
 ## Interface: 30300
-## Title: |cff8a0707Diabolic|r|cffffffffUI|r |cff8a0707M|r|cffffffffinimap|r
+## Name: DiabolicUI-Minimap
+## Title: |TInterface\Addons\DiabolicUI-Minimap\Assets\diabolic-lettermark.tga:16:16:0:0:512:512:90:422:90:422|t |cffaa0022Diabolic|r |cfffafafaUI|r |cff8a0707M|r|cfffafafainimap|r
 ## Version: 0.1
 ## Author: Nethanos
 ## X-Category: Interface Enhancements
